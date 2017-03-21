@@ -1,0 +1,15 @@
+CREATE TABLE card (
+    _id INTEGER NOT NULL PRIMARY KEY,
+    rank INTEGER NOT NULL,
+    suit TEXT NOT NULL
+
+
+);
+
+select_all:
+SELECT *
+FROM card;
+
+insert_row:
+INSERT INTO card(rank, suit)
+VALUES (?,?)

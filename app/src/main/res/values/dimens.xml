@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="match_constraint">0dp</dimen>
+    <dimen name="playing_card_width">80dp</dimen>
+</resources>
