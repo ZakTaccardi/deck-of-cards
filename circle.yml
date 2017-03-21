@@ -15,20 +15,19 @@ dependencies:
 
 test:
   override:
+     # start the emulator
+     - emulator -avd circleci-android24 -no-window:
+         background: true
+         parallel: true
      # start lint
      #- ./gradlew lint
      # start unit tests
      - ./gradlew test
-     # start the emulator
-#     - emulator -avd circleci-android24 -no-window:
-#         background: true
-#         parallel: true
+
      # wait for it to have booted
-#     - circle-android wait-for-boot
+     - circle-android wait-for-boot
      # run tests  against the emulator.
-#     - ./gradlew connectedAndroidTest
-#     - cp -r app/build/reports/tests/* $CIRCLE_ARTIFACTS
-#     - cp -r library/build/reports/tests/* $CIRCLE_ARTIFACTS
+     - ./gradlew connectedAndroidTest
      # copy lint outputs to artifacts
 #     - cp -r app/build/reports/lint-* $CIRCLE_ARTIFACTS
      # copy the build outputs to artifacts
@@ -37,6 +36,8 @@ test:
 #     - cp -r app/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - mkdir -p $CIRCLE_TEST_REPORTS/android-junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    - find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/android-junit/ \;
     - find . -type f -regex ".*/build/outputs/apk/.*apk" -exec cp {} $CIRCLE_ARTIFACTS \;
 
