@@ -11,7 +11,7 @@ dependencies:
 #    - echo y | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
   cache_directories: # relative to the build directory
       - ".gradle"   #cache gradle downloads between builds
-      - "$ANDROID_HOME"   #cache gradle downloads between builds
+#      - "$ANDROID_HOME"   #cache gradle downloads between builds
 
 test:
    override:
@@ -24,13 +24,12 @@ test:
 #         background: true
 #         parallel: true
      # wait for it to have booted
-     - circle-android wait-for-boot
+#     - circle-android wait-for-boot
      # run tests  against the emulator.
-     - ./gradlew connectedAndroidTest
+#     - ./gradlew connectedAndroidTest
      # copy lint outputs to artifacts
      - cp -r app/build/reports/lint-* $CIRCLE_ARTIFACTS
      # copy the build outputs to artifacts
      - cp -r app/build/outputs/apk/* $CIRCLE_ARTIFACTS
      # copy the test results to the test results directory.
      - cp -r app/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS
-     
