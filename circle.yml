@@ -2,15 +2,11 @@ dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "tool"
     - echo y | $ANDROID_HOME/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
-#    - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.2"
-#    - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository"
-#    - echo y | android update sdk --no-ui --all --filter "android-25"
-#    - echo y | android update sdk --no-ui --all --filter "platform-tools"
-#    - echo y | android update sdk --no-ui --all --filter "tools"
-#    - echo y | android update sdk --no-ui --all --filter "tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository"
-#    - echo y | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+
+  override:
+  - export TERM="dumb"; ./gradlew compileTestJava
   cache_directories: # relative to the build directory
-      - "~/.gradle"   #cache gradle downloads between builds
+      - ~/.gradle   #cache gradle dgradownloads between builds
       - $ANDROID_HOME   #cache gradle downloads between builds
 
 test:
