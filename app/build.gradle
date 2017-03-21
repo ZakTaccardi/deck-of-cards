@@ -10,19 +10,19 @@ android {
         targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-        def shrink = true
-
         debug{
-            minifyEnabled shrink
-            useProguard !shrink
+            minifyEnabled false
+//            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         release {
-            minifyEnabled shrink
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
