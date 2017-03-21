@@ -9,3 +9,4 @@ dependencies:
     - echo y | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
   cache_directories: # relative to the build directory
       - ".gradle"   #cache gradle downloads between builds
+      - "$ANDROID_HOME"   #cache gradle downloads between builds
