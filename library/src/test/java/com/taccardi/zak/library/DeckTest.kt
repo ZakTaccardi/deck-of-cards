@@ -9,7 +9,7 @@ import org.junit.Test
 class DeckTest {
     @Test
     fun calculateSizeStandard52Deck() {
-        val actualCount = Deck.create()
+        val actualCount = Deck.create().cards.size
         val expected = 52
 
         assertThat(actualCount)

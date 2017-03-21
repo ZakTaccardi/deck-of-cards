@@ -5,7 +5,6 @@ import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Rank
 import com.taccardi.zak.library.pojo.Suit
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * A deck of [Card]s
@@ -20,14 +19,14 @@ class Deck constructor(
 
     companion object {
         fun create(): Deck {
-            val cards = ArrayList<Card>(size)
+            val cards = Stack<Card>()
             Suit.values.forEach { suit ->
                 Rank.values.forEach { rank ->
                     cards.add(Card(rank, suit))
                 }
             }
 
-            return null!!
+            return Deck(cards)
         }
 
         @VisibleForTesting
