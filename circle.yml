@@ -4,6 +4,10 @@ dependencies:
     - echo y | $ANDROID_HOME/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 
   override:
+  - emulator -avd circleci-android24 -no-window:
+           background: true
+           parallel: true
+      
   - export TERM="dumb"; ./gradlew assemble
   - export TERM="dumb"; ./gradlew assembleAndroidTest
   cache_directories: # relative to the build directory
