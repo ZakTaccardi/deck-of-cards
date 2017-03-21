@@ -14,7 +14,7 @@ dependencies:
       - $ANDROID_HOME   #cache gradle downloads between builds
 
 test:
-   override:
+  override:
      # start lint
      #- ./gradlew lint
      # start unit tests
