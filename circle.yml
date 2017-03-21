@@ -3,8 +3,8 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "build-tools-25.0.2"
     - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository"
     - echo y | android update sdk --no-ui --all --filter "android-25"
-    - echo y | android update sdk --no-ui --all --filter "constraint-layout-1.0.2"
-    - echo y | android update sdk --no-ui --all --filter "constraint-layout-solver-1.0.2"
+    - echo y | android update sdk --no-ui --all --filter "platform-tools"
+    - echo y | android update sdk --no-ui --all --filter "tools"
     - echo y | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
     - echo y | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
   cache_directories: # relative to the build directory
