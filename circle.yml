@@ -20,8 +20,11 @@ test:
          background: true
          parallel: true
      # start lint
-     #- ./gradlew lint
-     # start unit tests
+     - ./gradlew lint
+     # start assemble all outputs
+     - ./gradlew assemble
+     - ./gradlew assembleAndroidTest
+     # run unit tests
      - ./gradlew test
 
      # wait for it to have booted

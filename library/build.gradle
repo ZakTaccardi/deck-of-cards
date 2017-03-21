@@ -15,8 +15,16 @@ android {
 
     }
     buildTypes {
+        def shrink = true
+
+        debug{
+            minifyEnabled shrink
+            useProguard !shrink
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
         release {
-            minifyEnabled false
+            minifyEnabled shrink
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
