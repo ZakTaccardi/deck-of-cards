@@ -4,7 +4,8 @@ dependencies:
     - echo y | $ANDROID_HOME/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 
   override:
-  - export TERM="dumb"; ./gradlew compileTestJava
+  - export TERM="dumb"; ./gradlew assemble
+  - export TERM="dumb"; ./gradlew assembleAndroidTest
   cache_directories: # relative to the build directory
       - ~/.gradle   #cache gradle dgradownloads between builds
       - $ANDROID_HOME   #cache gradle downloads between builds
@@ -34,7 +35,7 @@ test:
      # copy the test results to the test results directory.
 #     - cp -r app/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS
   post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - mkdir -p $CIRCLE_TEST_REPORTS/./junit/
     - mkdir -p $CIRCLE_TEST_REPORTS/android-junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
     - find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/android-junit/ \;
