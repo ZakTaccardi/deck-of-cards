@@ -4,16 +4,17 @@ dependencies:
     - echo y | $ANDROID_HOME/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 
   override:
-  - export TERM="dumb"; ./gradlew androidDependencies
+    - ./gradlew dependencies
+    - ./gradlew androidDependencies
   cache_directories: # relative to the build directory
-      - ~/.gradle   #cache gradle dgradownloads between builds
-      - .gradle   #cache gradle dgradownloads between builds
-      - /$ANDROID_HOME   #cache gradle downloads between builds
+    - ~/.gradle   #cache gradle dgradownloads between builds
+    - .gradle   #cache gradle dgradownloads between builds
+    - /$ANDROID_HOME   #cache gradle downloads between builds
 
 test:
   override:
-     # start the emulator
-     - emulator -avd circleci-android24 -no-window:
+    # start the emulator
+    - emulator -avd circleci-android24 -no-window:
          background: true
          parallel: true
      # start lint
