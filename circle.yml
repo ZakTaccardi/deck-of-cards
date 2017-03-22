@@ -25,7 +25,7 @@ test:
     # run unit testsg
     - ./gradlew test
     # wait for it to have booted
-    - circle-andr  oid wait-for-boot
+    - circle-android wait-for-boot
     # run tests  against the emulator.
     - ./gradlew connectedAndroidTest
      # copy lint outputs to artifacts
