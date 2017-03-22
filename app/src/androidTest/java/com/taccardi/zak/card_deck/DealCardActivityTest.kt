@@ -78,24 +78,14 @@ class DealCardActivityTest {
 
         //1 would be first card, 2 would be second, etc
         fun getCard(position: Int): ViewInteraction {
-            //scroll to correct position
             val adjustedForDeck = position + FIRST_CARD_POSITION
-            deckAndCards.perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(adjustedForDeck))
+            //scroll to correct position first (or view won't be visible)
+            deckAndCards.perform(scrollToPosition<RecyclerView.ViewHolder>(adjustedForDeck))
             return onView(recyclerMatcher.atPosition(adjustedForDeck))
         }
 
         companion object {
             val FIRST_CARD_POSITION = 0
         }
-    }
-
-    fun tapRecyclerViewItem(recyclerViewId: Int, position: Int) {
-        onView(withId(recyclerViewId)).perform(scrollToPosition<RecyclerView.ViewHolder>(position))
-        onView(withRecyclerView(recyclerViewId).atPosition(position)).perform(click())
-    }
-
-    // Convenience helper
-    fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
-        return RecyclerViewMatcher(recyclerViewId)
     }
 }

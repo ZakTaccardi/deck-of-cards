@@ -9,9 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Created by zak.taccardi on 3/21/17.
+ * Helps get view matchers for a recyclerview
  */
-
 public class RecyclerViewMatcher {
     private final int recyclerViewId;
 
