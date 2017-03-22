@@ -14,7 +14,7 @@ dependencies:
 test:
   override:
     # start the emulator
-    - emulator -avd circleci-android24:
+    - emulator -avd circleci-android24 -no-window:
          background: true
          parallel: true
     # start lint
