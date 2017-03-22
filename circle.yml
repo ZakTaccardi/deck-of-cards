@@ -18,16 +18,21 @@ test:
          background: true
          parallel: true
     # start lint
-    - ./gradlew lint
+    - ./gradlew lint -PdisablePreDex
     # start assemble all outputs
-    - ./gradlew assemble
-    - ./gradlew assembleAndroidTest
+    - ./gradlew assemble -PdisablePreDex
+    - ./gradlew assembleAndroidTest -PdisablePreDex
     # run unit testsg
-    - ./gradlew test
+    - ./gradlew test -PdisablePreDex
     # wait for it to have booted
     - circle-android wait-for-boot
+    # unlock the emulator screen. This is to ensure the emulator screen wasn't on sleep mode.
+    - sleep 30
+    - adb shell input keyevent 82
+
     # run tests  against the emulator.
-    - ./gradlew connectedAndroidTest
+    - ./gradlew connectedAndroidTest -PdisablePreDex
+
      # copy lint outputs to artifacts
 #     - cp -r app/build/reports/lint-* $CIRCLE_ARTIFACTS
      # copy the build outputs to artifacts
