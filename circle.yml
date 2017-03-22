@@ -17,18 +17,17 @@ test:
     - emulator -avd circleci-android24 -no-window:
          background: true
          parallel: true
-     # start lint
-     - ./gradlew lint
-     # start assemble all outputs
-     - ./gradlew assemble
-     - ./gradlew assembleAndroidTest
-     # run unit testsg
-     - ./gradlew test
-
-     # wait for it to have booted
-     - circle-android wait-for-boot
-     # run tests  against the emulator.
-     - ./gradlew connectedAndroidTest
+    # start lint
+    - ./gradlew lint
+    # start assemble all outputs
+    - ./gradlew assemble
+    - ./gradlew assembleAndroidTest
+    # run unit testsg
+    - ./gradlew test
+    # wait for it to have booted
+    - circle-andr  oid wait-for-boot
+    # run tests  against the emulator.
+    - ./gradlew connectedAndroidTest
      # copy lint outputs to artifacts
 #     - cp -r app/build/reports/lint-* $CIRCLE_ARTIFACTS
      # copy the build outputs to artifacts
