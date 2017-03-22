@@ -1,6 +1,5 @@
 package com.taccardi.zak.library
 
-import android.support.annotation.VisibleForTesting
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Rank
 import com.taccardi.zak.library.pojo.Suit
@@ -29,9 +28,8 @@ class Deck constructor(
             return Deck(cards)
         }
 
-        @VisibleForTesting
-        val size: Int = Suit.count * Rank.count
-
+        val SIZE: Int by lazy {
+            Suit.count * Rank.count
+        }
     }
-
 }

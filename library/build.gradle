@@ -38,6 +38,7 @@ dependencies {
     compile libraries.rxJava2
     compile libraries.rxRelay2
     compile libraries.kotlin
+    compile libraries.rxAndroid2
 
 
     testCompile libraries.junit

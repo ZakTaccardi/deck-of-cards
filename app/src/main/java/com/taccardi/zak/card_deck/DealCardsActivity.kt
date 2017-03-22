@@ -15,7 +15,7 @@ import io.reactivex.Observable
 
 class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions, DealCardsUi.Intentions {
 
-    override var state = DealCardsUi.State.DEFAULT
+    override var state = DealCardsUi.State.NO_CARDS_DEALT
 
     lateinit var renderer: DealCardsUi.Renderer
     lateinit var dealCardClicks: Relay<Unit>

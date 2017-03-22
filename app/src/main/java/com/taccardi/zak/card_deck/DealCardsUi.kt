@@ -1,10 +1,12 @@
 package com.taccardi.zak.card_deck
 
+import android.support.annotation.VisibleForTesting
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.library.Deck
 import com.taccardi.zak.library.pojo.Card
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -61,10 +63,20 @@ interface DealCardsUi {
         }
 
         companion object {
-            val DEFAULT = State(
-                    remainingCards = Deck.size,
-                    cardsDealt = emptyList()
+            //default
+            val NO_CARDS_DEALT by lazy {
+                State(
+                        remainingCards = Deck.SIZE,
+                        cardsDealt = emptyList()
+                )
+            }
+
+            @VisibleForTesting
+            val EVERY_CARD_DEALT get() = State(
+                    remainingCards = 0,
+                    cardsDealt = Deck.create().cards
             )
+
         }
     }
 
@@ -91,6 +103,7 @@ interface DealCardsUi {
                     .map { it.cardsDealt }
                     .distinctUntilChanged()
                     .map { it.map { CardsRecycler.Item.UiCard(it) } }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
                         uiActions.showDealtCards(it)
                     }
