@@ -1,9 +1,9 @@
 package com.taccardi.zak.card_deck
 
-import android.content.Context
 import android.support.annotation.IdRes
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.ViewInteraction
+import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.doesNotExist
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.contrib.RecyclerViewActions.scrollToPosition
@@ -11,6 +11,7 @@ import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.filters.LargeTest
 import android.support.test.rule.ActivityTestRule
 import android.support.v7.widget.RecyclerView
+import com.taccardi.zak.card_deck.DealCardActivityTest.Delegate.UserIntent.*
 import com.taccardi.zak.card_deck.MyViewMatchers.withPartialText
 import com.taccardi.zak.library.pojo.Card
 import org.junit.Rule
@@ -30,11 +31,13 @@ class DealCardActivityTest {
     @Test
     fun no_cards_dealt() {
         delegate = Delegate(activityRule, DealCardsUi.State.NO_CARDS_DEALT)
+        delegate.assertState()
     }
 
     @Test
     fun every_card_dealt() {
         delegate = Delegate(activityRule, DealCardsUi.State.EVERY_CARD_DEALT)
+        delegate.assertState()
     }
 
     @Test
@@ -46,29 +49,80 @@ class DealCardActivityTest {
 
         assert(deck.remaining.size == 51)
         delegate = Delegate(activityRule, state)
+        delegate.assertState()
+    }
+
+    @Test
+    fun intention_deal_card_clicks() {
+        delegate = Delegate(rule = activityRule)
+        val subscriber = delegate.intentions.dealCardRequests()
+                .test()
+
+
+        delegate.click(DEAL_CARD)
+        delegate.click(DEAL_CARD)
+        //two clicks
+        subscriber.assertValueCount(2)
+    }
+
+    @Test
+    fun intention_shuffle_deck_clicks() {
+        delegate = Delegate(rule = activityRule)
+        val subscriber = delegate.intentions.shuffleDeckRequests()
+                .test()
+
+
+        delegate.click(SHUFFLE_DECK)
+        delegate.click(SHUFFLE_DECK)
+        delegate.click(SHUFFLE_DECK)
+        //three clicks
+        subscriber.assertValueCount(3)
+    }
+
+    @Test
+    fun intention_build_new_deck_clicks() {
+        delegate = Delegate(rule = activityRule)
+        val subscriber = delegate.intentions.newDeckRequests()
+                .test()
+
+
+        delegate.click(BUILD_NEW_DECK)
+        delegate.click(BUILD_NEW_DECK)
+        delegate.click(BUILD_NEW_DECK)
+        delegate.click(BUILD_NEW_DECK)
+        //four clicks
+        subscriber.assertValueCount(4)
     }
 
     /**
      * Runs the test
      * @param state state that will be rendered onto the view, and then verified that it is rendered properly
      */
-    private class Delegate(
+    class Delegate(
             private val rule: ActivityTestRule<DealCardsActivity>,
-            state: DealCardsUi.State
+            private val state: DealCardsUi.State = DealCardsUi.State.NO_CARDS_DEALT
 
     ) {
         val activity: DealCardsActivity by lazy { rule.activity }
         val ui by lazy { activity }
+        val intentions: DealCardsUi.Intentions by lazy { activity }
         val deckAndCards: ViewInteraction by lazy { onView(withId(R.id.cards_recycler)) }
         val recyclerMatcher by lazy { RecyclerViewMatcher(R.id.cards_recycler) }
         val firstCard: ViewInteraction get() = onView(recyclerMatcher.atPosition(FIRST_CARD_POSITION))
         val deck: ViewInteraction get() = onView(recyclerMatcher.atPosition(DECK_POSITION))
         val remaining: ViewInteraction get() = onView(withId(REMAINING_CARDS_HINT_ID))
+        val shuffleDeckButton: ViewInteraction get() = onView(withId(SHUFFLE_BUTTON_ID))
+        //        val dealCardButton: ViewInteraction get() = onView(withId(DEAL_CARD_BUTTON_ID))
+        val buildNewDeckButton: ViewInteraction get() = onView(withId(NEW_DECK_BUTTON_ID))
 
         init {
             ui.render(state)
+        }
+
+        fun assertState() {
             assert(state)
         }
+
 
         private fun assert(state: DealCardsUi.State) {
             //checks cards
@@ -123,11 +177,34 @@ class DealCardActivityTest {
             ))
         }
 
+        fun DealCardsUi.Intentions.assertClicks() {
+            deckAndCards.perform(scrollToPosition<RecyclerView.ViewHolder>(DECK_POSITION))
+            deck.check(matches(isDisplayed()))
+            deck.check(matches(
+                    hasDescendant(withId(DECK_ICON_ID))
+            ))
+        }
+
+        enum class UserIntent {
+            DEAL_CARD,
+            SHUFFLE_DECK,
+            BUILD_NEW_DECK
+        }
+
         companion object {
             val DECK_POSITION = 0
             val FIRST_CARD_POSITION = DECK_POSITION + 1
             @IdRes val DECK_ICON_ID = R.id.dealCardsUi_deck_icon
             @IdRes val REMAINING_CARDS_HINT_ID = R.id.dealCardsUi_cardsRemaining_textView
+            @IdRes val NEW_DECK_BUTTON_ID = R.id.button_new_deck
+            @IdRes val DEAL_CARD_BUTTON_ID = R.id.button_deal_card
+            @IdRes val SHUFFLE_BUTTON_ID = R.id.button_shuffle
+        }
+
+        fun click(userIntent: UserIntent) = when (userIntent) {
+            DEAL_CARD -> deck.perform(click())
+            SHUFFLE_DECK -> shuffleDeckButton.perform(click())
+            BUILD_NEW_DECK -> buildNewDeckButton.perform(click())
         }
 
     }

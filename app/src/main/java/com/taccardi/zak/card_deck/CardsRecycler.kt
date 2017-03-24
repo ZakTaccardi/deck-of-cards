@@ -9,18 +9,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Suit
 
 /**
  * Delegate for the recyclerview in [DealCardsUi] that displays the cards that were dealt.
+ *
+ * @property recyclerView the view itself
+ * @property deckClicks relay that should emit when the user clicks on the deck (to deal a card)
  */
 class CardsRecycler(
-        private val recyclerView: RecyclerView
+        private val recyclerView: RecyclerView,
+        private val deckClicks: Relay<Unit>
 ) {
 
     private val adapter by lazy {
-        val adapter = Adapter()
+        val adapter = Adapter(deckClicks)
         recyclerView.adapter = adapter
         adapter
     }
@@ -34,7 +39,7 @@ class CardsRecycler(
     }
 
 
-    private class Adapter : RecyclerView.Adapter<UiViewHolder<Item>>() {
+    private class Adapter(private val deckClicks: Relay<Unit>) : RecyclerView.Adapter<UiViewHolder<Item>>() {
 
         private var items: List<Item> = emptyList()
 
@@ -43,7 +48,7 @@ class CardsRecycler(
             return items.size
         }
 
-        override fun onBindViewHolder(holder: UiViewHolder<in Item>, position: Int) {
+        override fun onBindViewHolder(holder: UiViewHolder<Item>, position: Int) {
             holder.bind(items[position])
         }
 
@@ -52,7 +57,7 @@ class CardsRecycler(
             val type = UiViewHolder.ViewType.of(viewType)
             val view = inflater.inflate(type.layoutId, parent, false)
 
-            return UiViewHolder.create(view, UiViewHolder.ViewType.of(viewType))
+            return UiViewHolder.create(view, UiViewHolder.ViewType.of(viewType), deckClicks)
         }
 
 
@@ -92,17 +97,22 @@ class CardsRecycler(
             }
 
         }
-        class DeckHolder(itemView: View) : UiViewHolder<Item.UiDeck>(itemView) {
+
+        class DeckHolder(itemView: View, private val deckClicks: Relay<Unit>) : UiViewHolder<Item.UiDeck>(itemView) {
+            init {
+                itemView.setOnClickListener { deckClicks.accept(Unit) }
+            }
+
             override fun bind(item: Item.UiDeck) {
-                //no binding needed
+                //no bind needed
             }
         }
 
         companion object {
             @Suppress("UNCHECKED_CAST")
-            fun create(itemView: View, viewType: UiViewHolder.ViewType): UiViewHolder<Item> = when (viewType) {
+            fun create(itemView: View, viewType: UiViewHolder.ViewType, deckClicks: Relay<Unit>): UiViewHolder<Item> = when (viewType) {
                 ViewType.CARD -> CardHolder(itemView) as UiViewHolder<Item>
-                ViewType.DECK -> DeckHolder(itemView) as UiViewHolder<Item>
+                ViewType.DECK -> DeckHolder(itemView, deckClicks) as UiViewHolder<Item>
             }
         }
 

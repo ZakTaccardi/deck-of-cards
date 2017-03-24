@@ -90,7 +90,7 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
 
         override val cards: CardsRecycler by lazy {
             val recycler = activity.findViewById(R.id.cards_recycler) as RecyclerView
-            return@lazy CardsRecycler(recycler)
+            return@lazy CardsRecycler(recycler, dealCardClicks)
         }
         override val presenter by lazy {
             DealCardsPresenter(activity, activity, renderer, dealer)
