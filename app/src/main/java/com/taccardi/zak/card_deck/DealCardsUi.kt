@@ -3,6 +3,7 @@ package com.taccardi.zak.card_deck
 import android.support.annotation.VisibleForTesting
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.DealCardsUi.State.Change.*
 import com.taccardi.zak.library.Deck
 import com.taccardi.zak.library.pojo.Card
 import io.reactivex.Observable
@@ -53,41 +54,77 @@ interface DealCardsUi {
      * The view state for [DealCardsUi]
      */
     data class State(
-            val remainingCards: Int,
-            val cardsDealt: List<Card>
+            val deck: Deck,
+            val isShuffling: Boolean,
+            val isDealing: Boolean,
+            val isBuildingNewDeck: Boolean,
+            val error: String?
     ) {
+        val remaining: Int get() = deck.remaining.size
+        val dealt: List<Card> get() = deck.dealt
 
 
-        sealed class Mutator {
+        fun reduce(change: Change): State = when (change) {
+            NoOp -> this
+            RequestShuffle -> this.copy(isShuffling = true)
+            RequestTopCard -> this.copy(isDealing = true)
+            RequestNewDeck -> this.copy(isBuildingNewDeck = true)
+            is DeckModified -> this.copy(deck = deck)
+            is Error -> this.copy(error = change.description)
+            IsDealing -> this.copy(isDealing = true)
+            IsShuffling -> this.copy(isShuffling = true)
+            IsBuildingDeck -> this.copy(isBuildingNewDeck = true)
+            DealingComplete -> this.copy(isDealing = false)
+            ShuffleComplete -> this.copy(isShuffling = false)
+            BuildingDeckComplete -> this.copy(isBuildingNewDeck = false)
+        }
 
+
+        sealed class Change(val logText: String) {
+            object RequestShuffle : Change("user -> requested shuffle")
+            object RequestTopCard : Change("user -> request top card of deck to be dealt")
+            object RequestNewDeck : Change("user -> requesting a new deck")
+            class Error(val description: String) : Change("error -> $description")
+            object NoOp : Change("")
+            class DeckModified(val deck: com.taccardi.zak.library.Deck) : Change("disk -> deck changed. ${deck.remaining.size} cards remaining. ${deck.dealt.size} cards dealt.")
+            object IsDealing : Change("network -> card is being dealt")
+            object IsShuffling : Change("network -> deck is being shuffled")
+            object IsBuildingDeck : Change("network -> deck is being build")
+            object DealingComplete : Change("network -> card was successfully dealt")
+            object ShuffleComplete : Change("network -> deck was successfully shuffled")
+            object BuildingDeckComplete : Change("network -> deck was successfully built")
         }
 
         companion object {
             //default
             val NO_CARDS_DEALT by lazy {
                 State(
-                        remainingCards = Deck.SIZE,
-                        cardsDealt = emptyList()
+                        deck = Deck.FRESH_DECK,
+                        isShuffling = false,
+                        isDealing = false,
+                        isBuildingNewDeck = false,
+                        error = null
                 )
             }
 
             @VisibleForTesting
-            val EVERY_CARD_DEALT get() = State(
-                    remainingCards = 0,
-                    cardsDealt = Deck.create().cards
-            )
+            val EVERY_CARD_DEALT by lazy {
+                NO_CARDS_DEALT.copy(Deck.EVERY_CARD_DEALT)
+            }
 
         }
+
     }
 
-    class Renderer(val uiActions: DealCardsUi.Actions) {
+
+    class Renderer(val uiActions: DealCardsUi.Actions) : StateRenderer<DealCardsUi.State> {
 
         val disposables = CompositeDisposable()
 
         val state: Relay<State> = PublishRelay.create()
 
         val remainingCards = state
-                .map { it.remainingCards }
+                .map { it.remaining }
                 .distinctUntilChanged()
                 .doOnNext { uiActions.showRemainingCards(it) }!!
 
@@ -100,7 +137,7 @@ interface DealCardsUi {
                     .subscribe()
 
             disposables += state
-                    .map { it.cardsDealt }
+                    .map { it.dealt }
                     .distinctUntilChanged()
                     .map { it.map { CardsRecycler.Item.UiCard(it) } }
                     .observeOn(AndroidSchedulers.mainThread())
@@ -109,8 +146,8 @@ interface DealCardsUi {
                     }
         }
 
-        fun render(state: DealCardsUi.State) {
-            this.state.accept(state)
+        override fun render(viewState: DealCardsUi.State) {
+            this.state.accept(viewState)
         }
 
         fun stop() {

@@ -36,6 +36,7 @@ dependencies {
     compile libraries.supportRecyclerView
     compile libraries.supportCardView
     compile libraries.supportConstraintLayout
+    compile libraries.timber
 
     testCompile libraries.junit
     testCompile libraries.assertJ

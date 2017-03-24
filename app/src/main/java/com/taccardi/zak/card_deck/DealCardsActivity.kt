@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.Button
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.library.model.Dealer
-import com.taccardi.zak.library.pojo.Card
-import com.taccardi.zak.library.pojo.Rank
-import com.taccardi.zak.library.pojo.Suit
+import com.taccardi.zak.library.model.InMemoryDealer
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 
 class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions, DealCardsUi.Intentions {
 
@@ -21,13 +19,13 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     lateinit var dealCardClicks: Relay<Unit>
     lateinit var shuffleDeckClicks: Relay<Unit>
     lateinit var newDeckRequests: Relay<Unit>
-    lateinit var cards : CardsRecycler
-    lateinit var presenter : DealCardsPresenter
+    lateinit var cards: CardsRecycler
+    lateinit var presenter: DealCardsPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cards)
-        val component: Component = Dependencies(this, Dealer())
+        val component: Component = Dependencies(this, InMemoryDealer(Schedulers.computation()))
 
         renderer = component.renderer
         dealCardClicks = component.dealCardClicks
@@ -43,16 +41,12 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
 
     override fun onStart() {
         super.onStart()
+        presenter.start()
+    }
 
-        renderer.render(
-                DealCardsUi.State(
-                        remainingCards = 50,
-                        cardsDealt = listOf(
-                                Card(Rank.TWO, Suit.HEARTS),
-                                Card(Rank.ACE, Suit.SPADES)
-                        )
-                )
-        )
+    override fun onStop() {
+        super.onStop()
+        presenter.stop()
     }
 
     override fun render(state: DealCardsUi.State) {
@@ -93,7 +87,7 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
             return@lazy CardsRecycler(recycler)
         }
         override val presenter by lazy {
-            DealCardsPresenter(activity, renderer, dealer)
+            DealCardsPresenter(activity, activity, renderer, dealer)
         }
         override val shuffleButton: View by lazy {
             activity.findViewById(R.id.button_shuffle)

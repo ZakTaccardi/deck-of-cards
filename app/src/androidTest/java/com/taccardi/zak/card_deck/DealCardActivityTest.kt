@@ -59,14 +59,16 @@ class DealCardActivityTest {
 
         private fun assert(state: DealCardsUi.State) {
             //checks cards
-            if (state.cardsDealt.isEmpty()) {
+            if (state.dealt.isEmpty()) {
                 firstCard.check(doesNotExist())
             } else {
-                firstCard.isThe(state.cardsDealt.first())
-                state.cardsDealt.forEachIndexed { index, card ->
+                firstCard.isThe(state.dealt.first())
+                state.dealt.forEachIndexed { index, card ->
                     getCard(position = index).isThe(card)
                 }
             }
+
+
         }
 
         private fun ViewInteraction.isThe(card: Card) {
