@@ -1,14 +1,18 @@
 package com.taccardi.zak.card_deck
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.TextView
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.library.model.Dealer
 import com.taccardi.zak.library.model.InMemoryDealer
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions, DealCardsUi.Intentions {
@@ -21,6 +25,7 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     lateinit var newDeckRequests: Relay<Unit>
     lateinit var cards: CardsRecycler
     lateinit var presenter: DealCardsPresenter
+    lateinit var cardsLeftHint: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +37,7 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         shuffleDeckClicks = component.shuffleDeckClicks
         newDeckRequests = component.newDeckRequests
         cards = component.cards
+        cardsLeftHint = component.cardsLeftHint
         presenter = component.presenter
 
         component.newDeckButton.setOnClickListener { newDeckRequests.accept(Unit) }
@@ -59,7 +65,7 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     }
 
     override fun showRemainingCards(remainingCards: Int) {
-        cards.showRemainingCards(remainingCards)
+        cardsLeftHint.text = this.applicationContext.remainingCardsHint(remainingCards)
     }
 
     override fun dealCardRequests(): Observable<Unit> {
@@ -81,13 +87,16 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         override val dealCardClicks: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
         override val shuffleDeckClicks: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
         override val newDeckRequests: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
-        override val renderer by lazy { DealCardsUi.Renderer(activity) }
+
         override val cards: CardsRecycler by lazy {
             val recycler = activity.findViewById(R.id.cards_recycler) as RecyclerView
             return@lazy CardsRecycler(recycler)
         }
         override val presenter by lazy {
             DealCardsPresenter(activity, activity, renderer, dealer)
+        }
+        override val cardsLeftHint: TextView by lazy {
+            activity.findViewById(R.id.dealCardsUi_cardsRemaining_textView) as TextView
         }
         override val shuffleButton: View by lazy {
             activity.findViewById(R.id.button_shuffle)
@@ -98,6 +107,14 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         override val dealCardButton: View by lazy {
             activity.findViewById(R.id.button_deal_card)
         }
+        override val main: Scheduler by lazy { AndroidSchedulers.mainThread() }
+        override val disk: Scheduler by lazy { Schedulers.io() }
+        override val comp: Scheduler by lazy {
+//            Schedulers.computation()
+            main
+        }
+        override val renderer by lazy { DealCardsUi.Renderer(activity, main = main, comp = comp) }
+
     }
 
     interface Component {
@@ -110,5 +127,17 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         val newDeckButton: View
         val shuffleButton: View
         val dealCardButton: View
+        val cardsLeftHint: TextView
+        val main: Scheduler
+        val disk: Scheduler
+        val comp: Scheduler
     }
+}
+
+fun Context.remainingCardsHint(count: Int): String {
+    if (count == 0) {
+        return this.getString(R.string.dealCardsUi_remainingCards_hint_zero)
+    }
+
+    return this.resources.getQuantityString(R.plurals.number_of_cards_left, count, count)
 }

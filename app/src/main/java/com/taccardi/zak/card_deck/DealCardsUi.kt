@@ -3,10 +3,12 @@ package com.taccardi.zak.card_deck
 import android.support.annotation.VisibleForTesting
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.CardsRecycler.Item
 import com.taccardi.zak.card_deck.DealCardsUi.State.Change.*
 import com.taccardi.zak.library.Deck
 import com.taccardi.zak.library.pojo.Card
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -45,6 +47,7 @@ interface DealCardsUi {
          * The the number of remaining cards in the deck
          */
         fun showRemainingCards(remainingCards: Int)
+
 
         fun showDealtCards(items: List<CardsRecycler.Item>)
 
@@ -117,33 +120,44 @@ interface DealCardsUi {
     }
 
 
-    class Renderer(val uiActions: DealCardsUi.Actions) : StateRenderer<DealCardsUi.State> {
+    class Renderer(
+            val uiActions: DealCardsUi.Actions,
+            val main: Scheduler,
+            val comp: Scheduler
+    ) : StateRenderer<DealCardsUi.State> {
 
         val disposables = CompositeDisposable()
 
-        val state: Relay<State> = PublishRelay.create()
-
-        val remainingCards = state
-                .map { it.remaining }
-                .distinctUntilChanged()
-                .doOnNext { uiActions.showRemainingCards(it) }!!
+        val state: Relay<State> = PublishRelay.create<State>().toSerialized()
 
         init {
             start()
         }
 
         fun start() {
-            disposables += remainingCards
-                    .subscribe()
+            disposables += state
+                    .map { it.remaining }
+                    .distinctUntilChanged()
+                    .subscribeOn(comp)
+                    .observeOn(main)
+                    .subscribe{ uiActions.showRemainingCards(it) }
 
             disposables += state
                     .map { it.dealt }
                     .distinctUntilChanged()
-                    .map { it.map { CardsRecycler.Item.UiCard(it) } }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        uiActions.showDealtCards(it)
+                    .map { it.map { Item.UiCard(it) } }
+                    .map { cards ->
+                        val list = ArrayList<CardsRecycler.Item>(cards.size + 1)
+                        list.add(Item.UiDeck)
+                        list.addAll(cards)
+                        list
                     }
+                    .subscribeOn(comp)
+                    .observeOn(main)
+                    .subscribe { recyclerItems ->
+                        uiActions.showDealtCards(recyclerItems)
+                    }
+
         }
 
         override fun render(viewState: DealCardsUi.State) {

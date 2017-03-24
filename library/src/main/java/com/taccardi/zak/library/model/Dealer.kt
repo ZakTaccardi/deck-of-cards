@@ -43,7 +43,7 @@ sealed class DealOperation {
 }
 
 sealed class ShuffleOperation {
-    //when card is in the process of being shuffled
+    //when deck is in the process of being shuffled
     object Shuffling : ShuffleOperation()
 
     //an error happened when shuffling the deck

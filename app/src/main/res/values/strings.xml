@@ -3,6 +3,8 @@
     <string name="button_shuffle_text">shuffle</string>
     <string name="button_new_deck_text">new deck</string>
     <string name="button_deal_card_text">deal card</string>
-    <string name="dealCardsUi_tapToDeal_text">Tap deck to deal top card</string>
     <string name="spade">♠</string>
+    <string name="dealCardsUi_remainingCards_hint_zero">Deck is empty. Build a new one</string>
+    <string name="dealCardsUi_tapToDeal_text">Tap deck to deal top card. %2$d cards remain.</string>
+
 </resources>

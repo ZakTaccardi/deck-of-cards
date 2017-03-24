@@ -7,6 +7,7 @@
     app:cardBackgroundColor="@color/cardview_dark_background">
 
     <ImageView
+        android:id="@+id/dealCardsUi_deck_icon"
         style="@style/DealCardsUi.Card"
         android:layout_width="40dp"
         android:layout_height="40dp"

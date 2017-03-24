@@ -92,13 +92,6 @@ class DealCardsPresenter(
 
         private val handleUnknownError: (Throwable) -> State.Change = { t -> State.Change.Error(t.localizedMessage) }
 
-        private val handleDealOperation: (DealOperation) -> State.Change = {
-            operation ->
-            when (operation) {
-            //how to enforce type safety? `DealOperation` is a sealed class
-            }
-        }
-
         private fun handle(operation: DealOperation): State.Change = when (operation) {
             DealOperation.Dealing -> State.Change.IsDealing
             is DealOperation.Error -> State.Change.Error(operation.description)

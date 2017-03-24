@@ -29,13 +29,6 @@ class CardsRecycler(
         recyclerView.layoutManager = LinearLayoutManager(recyclerView.context, RecyclerView.HORIZONTAL, false)
     }
 
-    /**
-     * @see DealCardsUi.Actions.showRemainingCards
-     */
-    fun showRemainingCards(remainingCards: Int) {
-
-    }
-
     fun showCardsDealt(cards: List<Item>) {
         adapter.showCardsDealt(cards)
     }
@@ -99,18 +92,23 @@ class CardsRecycler(
             }
 
         }
+        class DeckHolder(itemView: View) : UiViewHolder<Item.UiDeck>(itemView) {
+            override fun bind(item: Item.UiDeck) {
+                //no binding needed
+            }
+        }
 
         companion object {
             @Suppress("UNCHECKED_CAST")
             fun create(itemView: View, viewType: UiViewHolder.ViewType): UiViewHolder<Item> = when (viewType) {
                 ViewType.CARD -> CardHolder(itemView) as UiViewHolder<Item>
-                ViewType.DECK -> TODO()
+                ViewType.DECK -> DeckHolder(itemView) as UiViewHolder<Item>
             }
         }
 
         enum class ViewType(@LayoutRes val layoutId: Int) {
             CARD(R.layout.item_deal_cards_ui_card),
-            DECK(R.layout.item_deal_cards_ui_card);
+            DECK(R.layout.item_deal_cards_ui_deck);
 
             companion object {
                 //don't want to allocate a defensive copy every time
@@ -136,7 +134,7 @@ class CardsRecycler(
         }
 
         object UiDeck : Item() {
-            override val layoutId = R.layout.item_deal_cards_ui_card
+            override val layoutId = R.layout.item_deal_cards_ui_deck
         }
     }
 }
