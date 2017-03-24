@@ -14,9 +14,9 @@ dependencies:
 test:
   override:
     # start the emulator
-    - emulator -avd circleci-android24 -no-window:
-         background: true
-         parallel: true
+#    - emulator -avd circleci-android24 -no-window:
+#         background: true
+#         parallel: true
     # start lint
     - ./gradlew lint -PdisablePreDex
     # start assemble all outputs
@@ -25,13 +25,13 @@ test:
     # run unit testsg
     - ./gradlew test -PdisablePreDex
     # wait for it to have booted
-    - circle-android wait-for-boot
+#    - circle-android wait-for-boot
     # unlock the emulator screen. This is to ensure the emulator screen wasn't on sleep mode.
-    - sleep 30
-    - adb shell input keyevent 82
+#    - sleep 30
+#    - adb shell input keyevent 82
 
     # run tests  against the emulator.
-    - ./gradlew connectedAndroidTest -PdisablePreDex
+#    - ./gradlew connectedAndroidTest -PdisablePreDex
 
      # copy lint outputs to artifacts
 #     - cp -r app/build/reports/lint-* $CIRCLE_ARTIFACTS
