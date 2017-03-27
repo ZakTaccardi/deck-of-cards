@@ -16,7 +16,10 @@ import com.taccardi.zak.card_deck.Delegate.UserIntent.*
 import com.taccardi.zak.card_deck.MyViewMatchers.withPartialText
 import com.taccardi.zak.library.pojo.Card
 import org.hamcrest.CoreMatchers.not
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import timber.log.Timber
 
 
@@ -125,7 +128,6 @@ class DealCardActivityTest {
         delegate.run()
     }
 
-
     @Test
     fun loading_ui_shows_dealing() {
         val test = LoadingUiTestDelegate(
@@ -146,6 +148,19 @@ class DealCardActivityTest {
         )
 
         test.run()
+    }
+
+    @Test
+    fun error_shows() {
+        val error = Error("an error happened")
+        val withError = DealCardsUi.State.EVERY_CARD_DEALT.reduce(error)
+        val errorDismissed = DealCardsUi.State.EVERY_CARD_DEALT.reduce(error)
+        val test = Delegate(
+                rule = activityRule,
+                state = withError
+        )
+        test.renderStateAndAssert()
+        test.renderStateAndAssert(errorDismissed)
     }
 
     @Test
@@ -226,9 +241,9 @@ class Delegate(
     val firstCard: ViewInteraction get() = onView(recyclerMatcher.atPosition(FIRST_CARD_POSITION))
     val deck: ViewInteraction get() = onView(recyclerMatcher.atPosition(DECK_POSITION))
     val loadingUi: ViewInteraction get() = onView(withId(R.id.dealCardsUi_progressBar_loading))
+    val errorUi: ViewInteraction get() = onView(withId(R.id.dealCardsUi_error))
     val remaining: ViewInteraction get() = onView(withId(REMAINING_CARDS_HINT_ID))
     val shuffleDeckButton: ViewInteraction get() = onView(withId(SHUFFLE_BUTTON_ID))
-    //        val dealCardButton: ViewInteraction get() = onView(withId(DEAL_CARD_BUTTON_ID))
     val buildNewDeckButton: ViewInteraction get() = onView(withId(NEW_DECK_BUTTON_ID))
 
     fun renderState(state: DealCardsUi.State? = null) {
@@ -264,13 +279,13 @@ class Delegate(
             }
         }
 
-
         ui.assertFirstItemIsDeck()
-
 
         ui.assertRemainingCards(expected = state.remaining)
 
         ui.assertLoading(expected = state.isLoading)
+
+        ui.assertError(errorText = state.error)
 
 
     }
@@ -324,6 +339,15 @@ class Delegate(
         ))
     }
 
+    fun DealCardsUi.assertError(errorText: String?) {
+        if (errorText != null) {
+            errorUi.check(matches(isCompletelyDisplayed()))
+            errorUi.check(matches(withText(errorText)))
+        } else {
+            errorUi.check(matches(not(isDisplayed())))
+        }
+    }
+
     enum class UserIntent {
         DEAL_CARD,
         SHUFFLE_DECK,
@@ -336,7 +360,6 @@ class Delegate(
         @IdRes val DECK_ICON_ID = R.id.dealCardsUi_deck_icon
         @IdRes val REMAINING_CARDS_HINT_ID = R.id.dealCardsUi_cardsRemaining_textView
         @IdRes val NEW_DECK_BUTTON_ID = R.id.button_new_deck
-        @IdRes val DEAL_CARD_BUTTON_ID = R.id.button_deal_card
         @IdRes val SHUFFLE_BUTTON_ID = R.id.button_shuffle
     }
 
@@ -347,3 +370,5 @@ class Delegate(
     }
 
 }
+
+

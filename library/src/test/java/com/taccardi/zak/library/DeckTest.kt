@@ -1,5 +1,6 @@
 package com.taccardi.zak.library
 
+import com.taccardi.zak.library.pojo.Deck
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

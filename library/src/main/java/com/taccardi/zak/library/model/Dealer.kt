@@ -2,11 +2,12 @@ package com.taccardi.zak.library.model
 
 import android.support.annotation.VisibleForTesting
 import com.jakewharton.rxrelay2.BehaviorRelay
-import com.taccardi.zak.library.Deck
 import com.taccardi.zak.library.model.ForceError.*
 import com.taccardi.zak.library.pojo.Card
+import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
 import io.reactivex.Scheduler
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -99,7 +100,7 @@ class InMemoryDealer(
 
                     when (forceError) {
                         NEVER -> success()
-                        SOMETIMES -> TODO()
+                        SOMETIMES -> randomCall(failRate = 50, onSuccess = { success() }, onFail = { error() })
                         ALWAYS -> error()
                     }
                 }
@@ -125,7 +126,7 @@ class InMemoryDealer(
 
                     when (forceError) {
                         NEVER -> success()
-                        SOMETIMES -> TODO()
+                        SOMETIMES -> randomCall(failRate = 50, onSuccess = { success() }, onFail = { error() })
                         ALWAYS -> error()
                     }
                 }
@@ -151,20 +152,31 @@ class InMemoryDealer(
 
                     when (forceError) {
                         NEVER -> success()
-                        SOMETIMES -> TODO()
+                        SOMETIMES -> randomCall(failRate = 50, onSuccess = { success() }, onFail = { error() })
                         ALWAYS -> error()
                     }
                 }
                 .subscribe()
     }
 
+    /**
+     * Randomly call one of two methods based oin probability.
+     *
+     * @param failRate between 0-100. This is the % [onFail] will be called.
+     */
+    private fun randomCall(failRate: Int, onSuccess: () -> Unit, onFail: () -> Unit) {
+        if (failRate < 0 || failRate > 100) throw IllegalStateException("Fail rate should be between 0 and 100. Was $failRate")
+        val result = Random().nextInt(100)
+
+        if (failRate > result) {
+            onFail.invoke()
+        } else {
+            onSuccess.invoke()
+        }
+    }
+
     override fun decks(): Observable<Deck> {
         return decks
-//                .mergeWith(
-//                shuffleOperations.filter { it is ShuffleOperation.Shuffled }
-//                        .map { it as ShuffleOperation.Shuffled }
-//                        .map { it.deck }
-//        )
     }
 
     override fun dealOperations(): Observable<DealOperation> = dealOperations

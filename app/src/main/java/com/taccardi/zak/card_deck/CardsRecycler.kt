@@ -1,6 +1,8 @@
 package com.taccardi.zak.card_deck
 
+import android.content.Context
 import android.support.annotation.LayoutRes
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -11,9 +13,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.CardsRecycler.Item.UiCard
+import com.taccardi.zak.card_deck.CardsRecycler.Item.UiDeck
 import com.taccardi.zak.library.pojo.Card
+import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.pojo.Suit
-import timber.log.Timber
 
 /**
  * Delegate for the recyclerview in [DealCardsUi] that displays the cards that were dealt.
@@ -22,7 +26,7 @@ import timber.log.Timber
  * @property deckClicks relay that should emit when the user clicks on the deck (to deal a card)
  */
 class CardsRecycler(
-        private val recyclerView: RecyclerView,
+        val recyclerView: RecyclerView,
         private val deckClicks: Relay<Unit>
 ) {
 
@@ -30,12 +34,21 @@ class CardsRecycler(
 
 
     init {
-        recyclerView.layoutManager = LinearLayoutManager(recyclerView.context, RecyclerView.HORIZONTAL, false)
+        recyclerView.layoutManager = NoScrollLinearLayoutManager(recyclerView.context, RecyclerView.HORIZONTAL, false)
+                .also {
+
+                }
         recyclerView.adapter = adapter
+
     }
 
     fun showCardsDealt(cards: List<Item>) {
         adapter.showCardsDealt(cards)
+    }
+
+    private class NoScrollLinearLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean) : LinearLayoutManager(context, orientation, reverseLayout) {
+        override fun canScrollHorizontally() = false
+        override fun canScrollVertically() = false
     }
 
 
@@ -69,11 +82,16 @@ class CardsRecycler(
             this.items = cards
             notifyDataSetChanged()
         }
+
+        fun showDeck(diff: RecyclerViewBinding<Item>) {
+            this.items = diff.new
+            diff.diff.dispatchUpdatesTo(this)
+        }
     }
 
     private class CardItemAnimator : DefaultItemAnimator() {
 
-        override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>): Boolean {
+        override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder, payloads: List<Any>): Boolean {
             when (viewHolder) {
                 is UiViewHolder.DeckHolder -> {
                     return true
@@ -91,7 +109,7 @@ class CardsRecycler(
         /**
          * View holder for cards
          */
-        class CardHolder(itemView: View) : UiViewHolder<Item.UiCard>(itemView) {
+        class CardHolder(itemView: View) : UiViewHolder<UiCard>(itemView) {
 
             val suitRanks: Array<TextView> by lazy {
                 arrayOf(
@@ -102,7 +120,7 @@ class CardsRecycler(
 
             val centerSuit: TextView by lazy { itemView.findViewById(R.id.dealCardsUi_center_suit) as TextView }
 
-            override fun bind(item: Item.UiCard) {
+            override fun bind(item: UiCard) {
                 suitRanks.forEach { suitRank ->
                     suitRank.text = item.card.symbolHtml()
                 }
@@ -111,12 +129,12 @@ class CardsRecycler(
 
         }
 
-        class DeckHolder(itemView: View, private val deckClicks: Relay<Unit>) : UiViewHolder<Item.UiDeck>(itemView) {
+        class DeckHolder(itemView: View, private val deckClicks: Relay<Unit>) : UiViewHolder<UiDeck>(itemView) {
             init {
                 itemView.setOnClickListener { deckClicks.accept(Unit) }
             }
 
-            override fun bind(item: Item.UiDeck) {
+            override fun bind(item: UiDeck) {
                 //no bind needed
             }
         }
@@ -147,26 +165,70 @@ class CardsRecycler(
         }
     }
 
+    /**
+     * An item in the [CardsRecycler]View.
+     */
     sealed class Item {
-        abstract val layoutId: Int
+        abstract val layoutId: @param:LayoutRes Int
         val viewType get() = layoutId
 
+        /** @see DiffUtil.Callback.areItemsTheSame */
+        abstract fun isItemSame(new: Item): Boolean
+
+        /** @see DiffUtil.Callback.areContentsTheSame */
+        abstract fun isContentSame(new: Item): Boolean
+
+        /**
+         * The UI representation of a [Card]
+         */
         data class UiCard(val card: Card) : Item() {
+
+            override fun isContentSame(new: Item): Boolean = when (new) {
+                is UiCard -> this == new
+                UiDeck -> false
+            }
+
+            override fun isItemSame(new: Item): Boolean = when (new) {
+                is UiCard -> this == new
+                UiDeck -> false
+            }
+
             override val layoutId = R.layout.item_deal_cards_ui_card
 
         }
 
+        /**
+         * The UI representation of a [Deck].
+         */
         object UiDeck : Item() {
+            override fun isItemSame(new: Item) = when (new) {
+                is UiCard -> false
+                UiDeck -> true //deck is always same
+            }
+
+            override fun isContentSame(new: Item): Boolean = when (new) {
+                is UiCard -> false
+                UiDeck -> true //deck is always same
+            }
+
             override val layoutId = R.layout.item_deal_cards_ui_deck
         }
+
     }
+
+    fun showDeck(diff: RecyclerViewBinding<Item>) {
+        this.adapter.showDeck(diff)
+    }
+
 }
 
 fun Card.symbolHtml(): Spanned {
+    //TODO use non-deprecated version
     return Html.fromHtml("${rank.intDef}<br />${suit.symbol}")
 }
 
 fun Suit.symbolHtml(): Spanned {
+    //TODO use non-deprecated version
     return Html.fromHtml(symbol)
 }
 

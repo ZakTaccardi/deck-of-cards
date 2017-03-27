@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.support.annotation.VisibleForTesting
 
 /**
- * Created by zak.taccardi on 3/3/17.
+ * Database helper.
  */
 class DatabaseHelper : SQLiteOpenHelper {
     constructor(context: Context, name: String, factory: SQLiteDatabase.CursorFactory, version: Int) : super(context, name, factory, version)

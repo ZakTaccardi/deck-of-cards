@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="number_of_cards_left">
-        <item quantity="one">Tap deck to deal. %d card remains</item>
-        <item quantity="other">Tap deck to deal. %d cards remain</item>
+        <item quantity="one">Tap deck to deal.\n%d card remains</item>
+        <item quantity="other">Tap deck to deal.\n%d cards remain</item>
     </plurals>
 </resources>

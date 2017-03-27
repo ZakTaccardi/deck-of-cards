@@ -54,7 +54,7 @@ ext.versions = [
         adapterDelegates3            : '3.0.1',
         autoValueParcel              : '0.2.5',
         jMustache                    : '1.13',
-        paperParcel                  : '2.0.0-beta2',
+        paperParcel                  : '2.0.0',
 
         kotlinChannel                : 'org.jetbrains.kotlin',
 //        kotlinChannel                : 'kotlin-dev',
@@ -116,7 +116,8 @@ ext.versions = [
         mockito                      : '2.5.6',
         supportTestRunner            : '0.5',
         spek                         : "1.0.89",
-        mockitoKotlin                : "1.0.1"
+        mockitoKotlin                : "1.0.1",
+        assertJGen                   : "1.1.2"
 
 ]
 
@@ -136,7 +137,8 @@ ext.gradlePlugins = [
         kotlin             : "$versions.kotlinChannel:kotlin-gradle-plugin:$versions.kotlin",
         realm              : "io.realm:realm-gradle-plugin:$versions.realmGradlePlugin",
         androidCommand     : "com.novoda:gradle-android-command-plugin:$versions.androidCommandGradlePlugin",
-        junitPlatformRunner: "org.junit.platform:junit-platform-gradle-plugin:$versions.junitPlatformRunner"
+        junitPlatformRunner: "org.junit.platform:junit-platform-gradle-plugin:$versions.junitPlatformRunner",
+        assertJGen         : "gradle.plugin.com.github.opengl-8080:assertjGen-gradle-plugin:$versions.assertJGen"
 ]
 
 ext.libraries = [

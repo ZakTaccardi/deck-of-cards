@@ -1,17 +1,22 @@
 package com.taccardi.zak.card_deck
 
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.annotation.VisibleForTesting
+import android.support.v7.util.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.card_deck.CardsRecycler.Item
 import com.taccardi.zak.card_deck.DealCardsUi.State.Change.*
-import com.taccardi.zak.library.Deck
+import com.taccardi.zak.card_deck.DealCardsUi.State.ErrorSource.*
 import com.taccardi.zak.library.pojo.Card
+import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import paperparcel.PaperParcel
 
 /**
  * The user interface for dealing cards.
@@ -49,7 +54,7 @@ interface DealCardsUi {
         fun showRemainingCards(remainingCards: Int)
 
 
-        fun showDealtCards(items: List<CardsRecycler.Item>)
+        fun showDeck(diff: RecyclerViewBinding<CardsRecycler.Item>)
 
         /**
          * Show or hide the loading UI
@@ -63,55 +68,82 @@ interface DealCardsUi {
          */
         fun disableButtons(disable: Boolean)
 
+        fun hideError()
+        /**
+         * @param error text to display to user
+         */
+        fun showError(error: String)
+
     }
 
     /**
      * The view state for [DealCardsUi]
      */
+    @PaperParcel
     data class State(
             val deck: Deck,
             val isShuffling: Boolean,
             val isDealing: Boolean,
             val isBuildingNewDeck: Boolean,
             val error: String?
-    ) {
+    ) : Parcelable {
         val remaining: Int get() = deck.remaining.size
         val dealt: List<Card> get() = deck.dealt
-        val isLoading = isShuffling || isDealing || isBuildingNewDeck
+        @Transient val isLoading = isShuffling || isDealing || isBuildingNewDeck
 
 
         fun reduce(change: Change): State = when (change) {
             NoOp -> this
-            RequestShuffle -> this.copy(isShuffling = true)
-            RequestTopCard -> this.copy(isDealing = true)
-            RequestNewDeck -> this.copy(isBuildingNewDeck = true)
+            RequestShuffle -> this.copy(isShuffling = true, error = null)
+            RequestTopCard -> this.copy(isDealing = true, error = null)
+            RequestNewDeck -> this.copy(isBuildingNewDeck = true, error = null)
             is DeckModified -> this.copy(deck = change.deck) //TODO write test
-            is Error -> this.copy(error = change.description)
+            is Error -> {
+                when (change.source) {
+                    SHUFFLING -> this.copy(error = change.description, isShuffling = false)
+                    DEALING -> this.copy(error = change.description, isDealing = false)
+                    BUILDING_NEW_DECK -> this.copy(error = change.description, isBuildingNewDeck = false)
+                    null -> this.copy(error = change.description)
+                }
+            }
             IsDealing -> this.copy(isDealing = true)
             IsShuffling -> this.copy(isShuffling = true)
             IsBuildingDeck -> this.copy(isBuildingNewDeck = true)
             DealingComplete -> this.copy(isDealing = false)
             ShuffleComplete -> this.copy(isShuffling = false)
             BuildingDeckComplete -> this.copy(isBuildingNewDeck = false)
+            DismissedError -> this.copy(error = null)
         }
+
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) = PaperParcelDealCardsUi_State.writeToParcel(this, dest, flags)
 
 
         sealed class Change(val logText: String) {
             object RequestShuffle : Change("user -> requested shuffle")
             object RequestTopCard : Change("user -> request top card of deck to be dealt")
             object RequestNewDeck : Change("user -> requesting a new deck")
-            class Error(val description: String) : Change("error -> $description")
+            class Error(val source: ErrorSource?, val description: String) : Change("error -> $description")
             object NoOp : Change("")
-            class DeckModified(val deck: com.taccardi.zak.library.Deck) : Change("disk -> deck changed. ${deck.remaining.size} cards remaining. ${deck.dealt.size} cards dealt.")
+            class DeckModified(val deck: Deck) : Change("disk -> deck changed. ${deck.remaining.size} cards remaining. ${deck.dealt.size} cards dealt.")
             object IsDealing : Change("network -> card is being dealt")
             object IsShuffling : Change("network -> deck is being shuffled")
             object IsBuildingDeck : Change("network -> deck is being build")
             object DealingComplete : Change("network -> card was successfully dealt")
             object ShuffleComplete : Change("network -> deck was successfully shuffled")
             object BuildingDeckComplete : Change("network -> deck was successfully built")
+            object DismissedError : Change("user -> dismissedError")
+        }
+
+        enum class ErrorSource {
+            SHUFFLING,
+            DEALING,
+            BUILDING_NEW_DECK
         }
 
         companion object {
+            @JvmField val CREATOR = PaperParcelDealCardsUi_State.CREATOR
             //default
             val NO_CARDS_DEALT by lazy {
                 State(
@@ -163,12 +195,17 @@ interface DealCardsUi {
                         val list = ArrayList<CardsRecycler.Item>(cards.size + 1)
                         list.add(Item.UiDeck)
                         list.addAll(cards)
-                        list
+                        @Suppress("USELESS_CAST")
+                        list as List<CardsRecycler.Item>
                     }
+                    .scanMap(
+                            emptyList<CardsRecycler.Item>(),
+                            { old: List<CardsRecycler.Item>, new: List<CardsRecycler.Item> -> calculateDiff(old, new) }
+                    )
                     .subscribeOn(Schedulers.trampoline())
                     .observeOn(main)
-                    .subscribe { recyclerItems ->
-                        uiActions.showDealtCards(recyclerItems)
+                    .subscribe { diff ->
+                        uiActions.showDeck(diff)
                     }
 
             disposables += state
@@ -180,17 +217,55 @@ interface DealCardsUi {
                         uiActions.disableButtons(disable = isLoading)
                     }
 
+            disposables += state
+                    .mapNullable { it.error }
+                    .distinctUntilChanged()
+                    .observeOn(main)
+                    .subscribe {
+                        val error = it.value
+                        if (error == null) {
+                            uiActions.hideError()
+                        } else {
+                            uiActions.showError(error)
+                        }
+                    }
+
         }
 
-        override fun render(viewState: DealCardsUi.State) {
-            this.state.accept(viewState)
+        override fun render(state: DealCardsUi.State) {
+            this.state.accept(state)
         }
 
         fun stop() {
             disposables.clear()
         }
-    }
 
+
+        companion object {
+            fun calculateDiff(old: List<CardsRecycler.Item>, new: List<CardsRecycler.Item>): RecyclerViewBinding<Item> {
+                val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                        val oldItem = old[oldItemPosition]
+                        val newItem = new[newItemPosition]
+                        return oldItem.isItemSame(newItem)
+                    }
+
+                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                        val oldItem = old[oldItemPosition]
+                        val newItem = new[newItemPosition]
+                        return oldItem.isContentSame(newItem)
+                    }
+
+                    override fun getOldListSize(): Int = old.size
+
+                    override fun getNewListSize(): Int = new.size
+
+                })
+
+                return RecyclerViewBinding(new = new, diff = diff)
+            }
+        }
+    }
 }
 
 operator fun CompositeDisposable.plusAssign(disposable: Disposable) {
@@ -209,4 +284,42 @@ fun <T, R> io.reactivex.Observable<T>.scanMap(initialValue: T, func2: (T, T) -> 
             .buffer(2, 1)
             .filter { it.size >= 2 }
             .map { func2.invoke(it[0], it[1]) }
+}
+
+data class RecyclerViewBinding<out T>(
+        val new: List<T>,
+        val diff: DiffUtil.DiffResult
+)
+
+data class Nullable<out T> constructor(val value: T?) {
+    constructor() : this(null)
+
+
+    fun isNull(): Boolean {
+        return value == null
+    }
+
+    fun isNonNull(): Boolean {
+        return !isNull()
+    }
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
+    companion object {
+        val NULL = Nullable(null)
+    }
+}
+
+fun <T : Any?> T.toNullable(): Nullable<T> {
+    if (this == null) {
+        return Nullable.NULL //reuse singleton
+    } else {
+        return Nullable(this)
+    }
+}
+
+fun <T : Any, R : Any?> io.reactivex.Observable<T>.mapNullable(func: (T) -> R?): io.reactivex.Observable<Nullable<R?>> {
+    return this.map { Nullable(func.invoke(it)) }
 }

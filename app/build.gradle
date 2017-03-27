@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -35,8 +36,15 @@ dependencies {
     compile libraries.supportAppCompat
     compile libraries.supportRecyclerView
     compile libraries.supportCardView
+    compile libraries.supportDesign
     compile libraries.supportConstraintLayout
     compile libraries.timber
+    compile libraries.paperParcel
+    compile libraries.paperParcelKotlin
+    compile libraries.androidState
+    kapt libraries.androidStateProcessor
+    kapt libraries.paperParcelCompiler
+
 
     testCompile libraries.junit
     testCompile libraries.assertJ

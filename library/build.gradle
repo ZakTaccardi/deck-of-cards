@@ -1,13 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -39,7 +40,9 @@ dependencies {
     compile libraries.rxRelay2
     compile libraries.kotlin
     compile libraries.rxAndroid2
-
+    compile libraries.paperParcel
+    compile libraries.paperParcelKotlin
+    kapt libraries.paperParcelCompiler
 
     testCompile libraries.junit
     testCompile libraries.assertJ

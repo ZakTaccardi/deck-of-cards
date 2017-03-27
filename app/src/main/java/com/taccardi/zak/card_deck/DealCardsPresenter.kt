@@ -1,6 +1,9 @@
 package com.taccardi.zak.card_deck
 
 import com.taccardi.zak.card_deck.DealCardsUi.State
+import com.taccardi.zak.card_deck.DealCardsUi.State.Change
+import com.taccardi.zak.card_deck.DealCardsUi.State.Change.Error
+import com.taccardi.zak.card_deck.DealCardsUi.State.ErrorSource
 import com.taccardi.zak.library.model.BuildingDeckOperation
 import com.taccardi.zak.library.model.DealOperation
 import com.taccardi.zak.library.model.Dealer
@@ -28,7 +31,7 @@ class DealCardsPresenter(
     fun start() {
 
         val shuffles = intentions.shuffleDeckRequests()
-                .map { State.Change.RequestShuffle as State.Change }
+                .map { Change.RequestShuffle as State.Change }
                 .doOnNext {
                     dealer.shuffleDeck()
                 }
@@ -37,23 +40,23 @@ class DealCardsPresenter(
 
 
         val newDeckRequests = intentions.newDeckRequests()
-                .map { State.Change.RequestNewDeck }
+                .map { Change.RequestNewDeck }
                 .doOnNext {
                     dealer.requestNewDeck()
                 }
-                .map { State.Change.RequestNewDeck as State.Change }
+                .map { Change.RequestNewDeck as State.Change }
                 .onErrorReturn(handleUnknownError)
 
 
         val dealCardRequests = intentions.dealCardRequests()
-                .map { State.Change.RequestTopCard as State.Change }
+                .map { Change.RequestTopCard as State.Change }
                 .doOnNext {
                     dealer.dealTopCard()
                 }
                 .onErrorReturn(handleUnknownError)
 
         val decks = dealer.decks()
-                .map { deck -> State.Change.DeckModified(deck) as State.Change }
+                .map { deck -> Change.DeckModified(deck) as State.Change }
                 .onErrorReturn(handleUnknownError)
 
         val dealOperations = dealer.dealOperations()
@@ -90,24 +93,24 @@ class DealCardsPresenter(
     companion object {
         private val TAG = "(${DealCardsUi::class.java.simpleName})"
 
-        private val handleUnknownError: (Throwable) -> State.Change = { t -> State.Change.Error(t.localizedMessage) }
+        private val handleUnknownError: (Throwable) -> State.Change = { t -> Change.Error(null, t.localizedMessage) }
 
         private fun handle(operation: DealOperation): State.Change = when (operation) {
-            DealOperation.Dealing -> State.Change.IsDealing
-            is DealOperation.Error -> State.Change.Error(operation.description)
-            is DealOperation.TopCard -> State.Change.DealingComplete
+            DealOperation.Dealing -> Change.IsDealing
+            is DealOperation.Error -> Error(ErrorSource.DEALING, operation.description)
+            is DealOperation.TopCard -> Change.DealingComplete
         }
 
         private fun handle(operation: ShuffleOperation): State.Change = when (operation) {
-            ShuffleOperation.Shuffling -> State.Change.IsShuffling
-            is ShuffleOperation.Error -> State.Change.Error(operation.description)
-            is ShuffleOperation.Shuffled -> State.Change.ShuffleComplete
+            ShuffleOperation.Shuffling -> Change.IsShuffling
+            is ShuffleOperation.Error -> Change.Error(ErrorSource.SHUFFLING, operation.description)
+            is ShuffleOperation.Shuffled -> Change.ShuffleComplete
         }
 
         private fun handle(operation: BuildingDeckOperation): State.Change = when (operation) {
-            BuildingDeckOperation.Building -> State.Change.IsBuildingDeck
-            is BuildingDeckOperation.Error -> State.Change.Error(operation.description)
-            is BuildingDeckOperation.Built -> State.Change.BuildingDeckComplete
+            BuildingDeckOperation.Building -> Change.IsBuildingDeck
+            is BuildingDeckOperation.Error -> Change.Error(ErrorSource.BUILDING_NEW_DECK, operation.description)
+            is BuildingDeckOperation.Built -> Change.BuildingDeckComplete
         }
 
     }

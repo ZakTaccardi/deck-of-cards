@@ -2,7 +2,7 @@ package com.taccardi.zak.card_deck
 
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
-import com.taccardi.zak.library.Deck
+import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.model.BuildingDeckOperation
 import com.taccardi.zak.library.model.DealOperation
 import com.taccardi.zak.library.model.InMemoryDealer
@@ -146,8 +146,8 @@ class DealCardsPresenterTest {
         var states: MutableList<DealCardsUi.State> = ArrayList()
         val current get() = states.lastOrNull()
 
-        override fun render(viewState: DealCardsUi.State) {
-            states.add(viewState)
+        override fun render(state: DealCardsUi.State) {
+            states.add(state)
         }
     }
 
