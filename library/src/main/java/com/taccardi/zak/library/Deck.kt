@@ -1,6 +1,5 @@
 package com.taccardi.zak.library
 
-import com.taccardi.zak.library.model.ShuffleOperation
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Rank
 import com.taccardi.zak.library.pojo.Suit
@@ -48,12 +47,15 @@ data class Deck constructor(
     }
 
     /**
-     * @return a new instance of this deck with a card dealt
+     * @return a new instance of this deck with a card dealt, or the same instance if no cards remain
      */
     fun withDealtCard(): Deck {
-        val cards = remaining.toStack()
-        val topCard = cards.pop()
-        return Deck(cards, this.dealt.plus(topCard))
+        if (remaining.isNotEmpty()) {
+            val cards = remaining.toStack()  //TODO test this
+            val topCard = cards.pop()
+            return Deck(cards, topCard.append(this.dealt))
+        }
+        return this
     }
 
     /**
@@ -78,4 +80,12 @@ fun Collection<Card>.toStack(): Stack<Card> {
     this.reversed().forEach { card -> stack.push(card) }
 
     return stack
+}
+
+fun <T> T.append(collection: List<T>): List<T> {
+    return ArrayList<T>(collection.size + 1)
+            .also {
+                it.add(this)
+                it.addAll(collection)
+            }
 }

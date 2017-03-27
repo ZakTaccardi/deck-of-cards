@@ -135,15 +135,36 @@ class InMemoryDealer(
     }
 
     override fun requestNewDeck() {
-        decks.accept(Deck.FRESH_DECK)
+        Observable.just(buildingDeckOperations.accept(BuildingDeckOperation.Building))
+                .delay(delayMs, TimeUnit.MILLISECONDS, comp)
+                .doOnNext {
+
+                    fun success() {
+                        val fresh = Deck.FRESH_DECK
+                        buildingDeckOperations.accept(BuildingDeckOperation.Built(fresh))
+                        deck = fresh
+                    }
+
+                    fun error() {
+                        buildingDeckOperations.accept(BuildingDeckOperation.Error("Building new deck failed. Try again"))
+                    }
+
+                    when (forceError) {
+                        NEVER -> success()
+                        SOMETIMES -> TODO()
+                        ALWAYS -> error()
+                    }
+                }
+                .subscribe()
     }
 
     override fun decks(): Observable<Deck> {
-        return decks.mergeWith(
-                shuffleOperations.filter { it is ShuffleOperation.Shuffled }
-                        .map { it as ShuffleOperation.Shuffled }
-                        .map { it.deck }
-        )
+        return decks
+//                .mergeWith(
+//                shuffleOperations.filter { it is ShuffleOperation.Shuffled }
+//                        .map { it as ShuffleOperation.Shuffled }
+//                        .map { it.deck }
+//        )
     }
 
     override fun dealOperations(): Observable<DealOperation> = dealOperations

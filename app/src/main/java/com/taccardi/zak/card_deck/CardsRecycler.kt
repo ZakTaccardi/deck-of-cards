@@ -1,6 +1,7 @@
 package com.taccardi.zak.card_deck
 
 import android.support.annotation.LayoutRes
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Html
@@ -12,6 +13,7 @@ import android.widget.TextView
 import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Suit
+import timber.log.Timber
 
 /**
  * Delegate for the recyclerview in [DealCardsUi] that displays the cards that were dealt.
@@ -24,14 +26,12 @@ class CardsRecycler(
         private val deckClicks: Relay<Unit>
 ) {
 
-    private val adapter by lazy {
-        val adapter = Adapter(deckClicks)
-        recyclerView.adapter = adapter
-        adapter
-    }
+    private val adapter = Adapter(deckClicks)
+
 
     init {
         recyclerView.layoutManager = LinearLayoutManager(recyclerView.context, RecyclerView.HORIZONTAL, false)
+        recyclerView.adapter = adapter
     }
 
     fun showCardsDealt(cards: List<Item>) {
@@ -68,6 +68,19 @@ class CardsRecycler(
         fun showCardsDealt(cards: List<Item>) {
             this.items = cards
             notifyDataSetChanged()
+        }
+    }
+
+    private class CardItemAnimator : DefaultItemAnimator() {
+
+        override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder, payloads: MutableList<Any>): Boolean {
+            when (viewHolder) {
+                is UiViewHolder.DeckHolder -> {
+                    return true
+                }
+            }
+
+            return super.canReuseUpdatedViewHolder(viewHolder, payloads)
         }
     }
 

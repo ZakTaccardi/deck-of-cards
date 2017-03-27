@@ -4,7 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
+import android.transition.TransitionManager
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
@@ -15,7 +18,7 @@ import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions, DealCardsUi.Intentions {
+class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions, DealCardsUi.Intentions, StateRenderer<DealCardsUi.State> {
 
     override var state = DealCardsUi.State.NO_CARDS_DEALT
 
@@ -26,11 +29,19 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     lateinit var cards: CardsRecycler
     lateinit var presenter: DealCardsPresenter
     lateinit var cardsLeftHint: TextView
+    lateinit var progressBar: ProgressBar
+    lateinit var newDeckButton: View
+    lateinit var shuffleButton: View
+    lateinit var dealCardButton: View
+    lateinit var dealCardsUi: ViewGroup
+    private val buttons by lazy {
+        arrayOf(newDeckButton, shuffleButton, dealCardButton)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cards)
-        val component: Component = Dependencies(this, InMemoryDealer(Schedulers.computation()))
+        val component: Component = Dependencies(this, InMemoryDealer(Schedulers.computation(), delayMs = 500))
 
         renderer = component.renderer
         dealCardClicks = component.dealCardClicks
@@ -38,7 +49,12 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         newDeckRequests = component.newDeckRequests
         cards = component.cards
         cardsLeftHint = component.cardsLeftHint
+        progressBar = component.progressBar
         presenter = component.presenter
+        newDeckButton = component.newDeckButton
+        shuffleButton = component.shuffleButton
+        dealCardButton = component.dealCardButton
+        dealCardsUi = component.dealCardsUi
 
         component.newDeckButton.setOnClickListener { newDeckRequests.accept(Unit) }
         component.shuffleButton.setOnClickListener { shuffleDeckClicks.accept(Unit) }
@@ -51,8 +67,8 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     }
 
     override fun onStop() {
-        super.onStop()
         presenter.stop()
+        super.onStop()
     }
 
     override fun render(state: DealCardsUi.State) {
@@ -70,14 +86,37 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
 
     override fun dealCardRequests(): Observable<Unit> {
         return dealCardClicks
+                .filter { !state.isLoading }
     }
 
     override fun shuffleDeckRequests(): Observable<Unit> {
         return shuffleDeckClicks
+                .filter { !state.isLoading }
     }
 
     override fun newDeckRequests(): Observable<Unit> {
         return newDeckRequests
+                .filter { !state.isLoading }
+    }
+
+    override fun showLoading(isLoading: Boolean) {
+        TransitionManager.beginDelayedTransition(dealCardsUi)
+        if (isLoading) {
+            progressBar.isIndeterminate = true
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
+    }
+
+    override fun disableButtons(disable: Boolean) {
+        TransitionManager.beginDelayedTransition(dealCardsUi)
+
+        if (disable) {
+            buttons.forEach { button -> button.isEnabled = false }
+        } else {
+            buttons.forEach { button -> button.isEnabled = true }
+        }
     }
 
     class Dependencies(
@@ -86,14 +125,14 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
     ) : Component {
         override val dealCardClicks: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
         override val shuffleDeckClicks: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
-        override val newDeckRequests: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
 
+        override val newDeckRequests: Relay<Unit> by lazy { PublishRelay.create<Unit>() }
         override val cards: CardsRecycler by lazy {
             val recycler = activity.findViewById(R.id.cards_recycler) as RecyclerView
             return@lazy CardsRecycler(recycler, dealCardClicks)
         }
         override val presenter by lazy {
-            DealCardsPresenter(activity, activity, renderer, dealer)
+            DealCardsPresenter(activity, activity, activity, dealer)
         }
         override val cardsLeftHint: TextView by lazy {
             activity.findViewById(R.id.dealCardsUi_cardsRemaining_textView) as TextView
@@ -107,12 +146,22 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         override val dealCardButton: View by lazy {
             activity.findViewById(R.id.button_deal_card)
         }
+
+        override val progressBar: ProgressBar by lazy {
+            activity.findViewById(R.id.dealCardsUi_progressBar_loading) as ProgressBar
+        }
+
+        override val dealCardsUi: ViewGroup by lazy {
+            activity.findViewById(R.id.dealCardsUi) as ViewGroup
+        }
+
         override val main: Scheduler by lazy { AndroidSchedulers.mainThread() }
         override val disk: Scheduler by lazy { Schedulers.io() }
         override val comp: Scheduler by lazy {
-//            Schedulers.computation()
+            //            Schedulers.computation()
             main
         }
+
         override val renderer by lazy { DealCardsUi.Renderer(activity, main = main, comp = comp) }
 
     }
@@ -128,6 +177,8 @@ class DealCardsActivity : AppCompatActivity(), DealCardsUi, DealCardsUi.Actions,
         val shuffleButton: View
         val dealCardButton: View
         val cardsLeftHint: TextView
+        val progressBar: ProgressBar
+        val dealCardsUi: ViewGroup
         val main: Scheduler
         val disk: Scheduler
         val comp: Scheduler

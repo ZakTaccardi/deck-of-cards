@@ -4,38 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/dealCardsUi"
     tools:context="com.taccardi.zak.card_deck.DealCardsActivity">
 
+
+    <ProgressBar
+        android:id="@+id/dealCardsUi_progressBar_loading"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="8dp" />
     <TextView
         android:id="@+id/dealCardsUi_cardsRemaining_textView"
-        android:layout_width="@dimen/match_constraint"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="@string/dealCardsUi_tapToDeal_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/dealCardsUi_progressBar_loading"
+        tools:layout_editor_absoluteX="0dp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/cards_recycler"
-        android:layout_width="@dimen/match_constraint"
+        android:layout_width="0dp"
         android:layout_height="120dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dealCardsUi_cardsRemaining_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/dealCardsUi_cardsRemaining_textView"
+        tools:layout_editor_absoluteX="0dp" />
 
     <Button
         android:id="@+id/button_deal_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_deal_card_text"
-        app:layout_constraintTop_toBottomOf="@id/cards_recycler" />
+        app:layout_constraintTop_toBottomOf="@+id/cards_recycler"
+        tools:layout_editor_absoluteX="0dp" />
     <Button
         android:id="@+id/button_shuffle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_shuffle_text"
         app:layout_constraintStart_toEndOf="@id/button_deal_card"
-        app:layout_constraintTop_toBottomOf="@id/cards_recycler" />
+        app:layout_constraintTop_toBottomOf="@+id/cards_recycler"
+        tools:layout_editor_absoluteX="98dp" />
 
     <Button
         android:id="@+id/button_new_deck"
@@ -43,6 +60,7 @@
         android:layout_height="wrap_content"
         android:text="@string/button_new_deck_text"
         app:layout_constraintStart_toEndOf="@id/button_shuffle"
-        app:layout_constraintTop_toBottomOf="@id/cards_recycler" />
+        app:layout_constraintTop_toBottomOf="@+id/cards_recycler"
+        tools:layout_editor_absoluteX="186dp" />
 
 </android.support.constraint.ConstraintLayout>

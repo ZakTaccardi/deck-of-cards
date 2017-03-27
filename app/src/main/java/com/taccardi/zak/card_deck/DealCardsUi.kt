@@ -9,9 +9,9 @@ import com.taccardi.zak.library.Deck
 import com.taccardi.zak.library.pojo.Card
 import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * The user interface for dealing cards.
@@ -51,6 +51,18 @@ interface DealCardsUi {
 
         fun showDealtCards(items: List<CardsRecycler.Item>)
 
+        /**
+         * Show or hide the loading UI
+         * @param isLoading true to show the loading UI, false to hide it
+         */
+        fun showLoading(isLoading: Boolean = true)
+
+        /**
+         * Disable or enable the buttons that allow user input
+         * @param disable true if buttons should be disabled, false if they should be enabled
+         */
+        fun disableButtons(disable: Boolean)
+
     }
 
     /**
@@ -65,6 +77,7 @@ interface DealCardsUi {
     ) {
         val remaining: Int get() = deck.remaining.size
         val dealt: List<Card> get() = deck.dealt
+        val isLoading = isShuffling || isDealing || isBuildingNewDeck
 
 
         fun reduce(change: Change): State = when (change) {
@@ -72,7 +85,7 @@ interface DealCardsUi {
             RequestShuffle -> this.copy(isShuffling = true)
             RequestTopCard -> this.copy(isDealing = true)
             RequestNewDeck -> this.copy(isBuildingNewDeck = true)
-            is DeckModified -> this.copy(deck = deck)
+            is DeckModified -> this.copy(deck = change.deck) //TODO write test
             is Error -> this.copy(error = change.description)
             IsDealing -> this.copy(isDealing = true)
             IsShuffling -> this.copy(isShuffling = true)
@@ -138,9 +151,9 @@ interface DealCardsUi {
             disposables += state
                     .map { it.remaining }
                     .distinctUntilChanged()
-                    .subscribeOn(comp)
+                    .subscribeOn(Schedulers.trampoline())
                     .observeOn(main)
-                    .subscribe{ uiActions.showRemainingCards(it) }
+                    .subscribe { uiActions.showRemainingCards(it) }
 
             disposables += state
                     .map { it.dealt }
@@ -152,10 +165,19 @@ interface DealCardsUi {
                         list.addAll(cards)
                         list
                     }
-                    .subscribeOn(comp)
+                    .subscribeOn(Schedulers.trampoline())
                     .observeOn(main)
                     .subscribe { recyclerItems ->
                         uiActions.showDealtCards(recyclerItems)
+                    }
+
+            disposables += state
+                    .map { it.isLoading }
+                    .distinctUntilChanged()
+                    .observeOn(main)
+                    .subscribe { isLoading ->
+                        uiActions.showLoading(isLoading)
+                        uiActions.disableButtons(disable = isLoading)
                     }
 
         }
