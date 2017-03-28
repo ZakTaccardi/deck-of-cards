@@ -23,7 +23,6 @@ import timber.log.Timber
 class DealCardsPresenter(
         private val ui: DealCardsUi,
         private val intentions: DealCardsUi.Intentions,
-        private val renderer: StateRenderer<State>,
         private val dealer: Dealer
 ) {
 
@@ -83,7 +82,7 @@ class DealCardsPresenter(
 
         disposables += merged.scan(ui.state, State::reduce)
                 .doOnNext { state -> Timber.tag(TAG); Timber.v("    --- $state") }
-                .subscribe(renderer::render)
+                .subscribe(ui::render)
     }
 
     fun stop() {

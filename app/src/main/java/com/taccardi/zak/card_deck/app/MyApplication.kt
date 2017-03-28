@@ -7,6 +7,7 @@ import com.taccardi.zak.library.dagger.DaggerDataComponent
 import com.taccardi.zak.library.dagger.DataComponent
 import timber.log.Timber
 
+
 /**
  * Overridden application.
  */

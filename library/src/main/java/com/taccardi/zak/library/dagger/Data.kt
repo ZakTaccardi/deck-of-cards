@@ -17,8 +17,9 @@ annotation class DataScope
 ))
 interface DataComponent {
 
-    val Dealer: Dealer
+    val dealer: Dealer
 
+    val schedulers: Schedulers
 
 
     @Component.Builder

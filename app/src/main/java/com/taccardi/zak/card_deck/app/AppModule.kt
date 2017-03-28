@@ -14,9 +14,9 @@ class AppModule(val application: MyApplication) {
 
 
     @Provides @AppScope
-    fun provideApplcation(): Application = application
+    fun provideApplication(): Application = application
 
     @Provides @AppScope
-    fun provideMyApplcation(): MyApplication = application
+    fun provideMyApplication(): MyApplication = application
 
 }

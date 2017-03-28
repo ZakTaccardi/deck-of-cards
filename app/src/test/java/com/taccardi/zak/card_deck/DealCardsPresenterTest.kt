@@ -2,15 +2,14 @@ package com.taccardi.zak.card_deck
 
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
-import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsPresenter
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi
-import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.model.BuildingDeckOperation
 import com.taccardi.zak.library.model.DealOperation
 import com.taccardi.zak.library.model.InMemoryDealer
 import com.taccardi.zak.library.model.ShuffleOperation
 import com.taccardi.zak.library.pojo.Card
+import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.pojo.Rank
 import com.taccardi.zak.library.pojo.Suit
 import io.reactivex.Observable
@@ -28,11 +27,11 @@ class DealCardsPresenterTest {
     val trampoline = Schedulers.trampoline()!!
 
     private lateinit var user: FakeIntentions
-    private lateinit var renderer: FakeRenderer
+    private lateinit var ui: FakeUi
     private lateinit var dealer: InMemoryDealer
     private lateinit var presenter: DealCardsPresenter
-    private val state get() = renderer.current
-    private val states get() = renderer.states
+    private val state get() = ui.current
+    private val states get() = ui.states
 
     @Before
     fun setUp() {
@@ -42,20 +41,13 @@ class DealCardsPresenterTest {
             }
         })
 
+        ui = FakeUi()
         user = FakeIntentions()
-        renderer = FakeRenderer()
         dealer = InMemoryDealer(trampoline)
         presenter = DealCardsPresenter(
                 intentions = user,
-                renderer = renderer,
                 dealer = dealer,
-                ui = object : DealCardsUi {
-                    override var state: DealCardsUi.State = DealCardsUi.State.NO_CARDS_DEALT
-                    override fun render(state: DealCardsUi.State) {
-                        this.state = state
-                    }
-                }
-        )
+                ui = ui)
         presenter.start()
     }
 
@@ -103,7 +95,6 @@ class DealCardsPresenterTest {
         state!!.assertIsDealing(false)
     }
 
-    //    deck_is_building_from_disk
     @Test
     fun shuffle_operation_is_shuffling() {
         dealer.shuffleOperations.accept(ShuffleOperation.Shuffling)
@@ -144,12 +135,14 @@ class DealCardsPresenterTest {
         state!!.assertIsBuildingNewDeck(false)
     }
 
-    private class FakeRenderer : StateRenderer<DealCardsUi.State> {
+    private class FakeUi() : DealCardsUi {
+        override var state: DealCardsUi.State = DealCardsUi.State.NO_CARDS_DEALT
 
         var states: MutableList<DealCardsUi.State> = ArrayList()
         val current get() = states.lastOrNull()
 
         override fun render(state: DealCardsUi.State) {
+            this.state = state
             states.add(state)
         }
     }
@@ -166,17 +159,11 @@ class DealCardsPresenterTest {
 
         override fun newDeckRequests(): Observable<Unit> = newDeckRequests
 
-        fun dealCard() {
-            dealCard.accept(Unit)
-        }
+        fun dealCard() = dealCard.accept(Unit)
 
-        fun shuffleDeck() {
-            shuffleDeckRequests.accept(Unit)
-        }
+        fun shuffleDeck() = shuffleDeckRequests.accept(Unit)
 
-        fun newDeck() {
-            newDeckRequests.accept(Unit)
-        }
+        fun newDeck() = newDeckRequests.accept(Unit)
 
     }
 }

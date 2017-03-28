@@ -6,10 +6,10 @@ import android.support.annotation.VisibleForTesting
 import android.support.v7.util.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.*
-import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
@@ -24,12 +24,11 @@ import paperparcel.PaperParcel
  *
  * @see DealCardsActivity
  */
-interface DealCardsUi {
-
-
-    fun render(state: State)
+interface DealCardsUi : StateRenderer<DealCardsUi.State> {
 
     val state: State
+
+    override fun render(state: State)
 
     interface Intentions {
         /**
@@ -146,6 +145,8 @@ interface DealCardsUi {
         companion object {
             @JvmField val CREATOR = PaperParcelDealCardsUi_State.CREATOR
             //default
+            val DEFAULT by lazy { NO_CARDS_DEALT }
+
             val NO_CARDS_DEALT by lazy {
                 State(
                         deck = Deck.FRESH_DECK,
