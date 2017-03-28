@@ -4,8 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.VisibleForTesting
 import android.support.v7.util.DiffUtil
-import com.jakewharton.rxrelay2.PublishRelay
-import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
@@ -13,10 +11,8 @@ import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Erro
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import paperparcel.PaperParcel
 
 /**
@@ -166,108 +162,6 @@ interface DealCardsUi : StateRenderer<DealCardsUi.State> {
 
     }
 
-
-    class Renderer(
-            val uiActions: Actions,
-            val main: Scheduler,
-            val comp: Scheduler
-    ) : StateRenderer<State> {
-
-        val disposables = CompositeDisposable()
-
-        val state: Relay<State> = PublishRelay.create<State>().toSerialized()
-
-        init {
-            start()
-        }
-
-        fun start() {
-            disposables += state
-                    .map { it.remaining }
-                    .distinctUntilChanged()
-                    .subscribeOn(Schedulers.trampoline())
-                    .observeOn(main)
-                    .subscribe { uiActions.showRemainingCards(it) }
-
-            disposables += state
-                    .map { it.dealt }
-                    .distinctUntilChanged()
-                    .map { it.map { Item.UiCard(it) } }
-                    .map { cards ->
-                        val list = ArrayList<Item>(cards.size + 1)
-                        list.add(Item.UiDeck)
-                        list.addAll(cards)
-                        @Suppress("USELESS_CAST")
-                        list as List<Item>
-                    }
-                    .scanMap(
-                            emptyList<Item>(),
-                            { old: List<Item>, new: List<Item> -> calculateDiff(old, new) }
-                    )
-                    .subscribeOn(Schedulers.trampoline())
-                    .observeOn(main)
-                    .subscribe { diff ->
-                        uiActions.showDeck(diff)
-                    }
-
-            disposables += state
-                    .map { it.isLoading }
-                    .distinctUntilChanged()
-                    .observeOn(main)
-                    .subscribe { isLoading ->
-                        uiActions.showLoading(isLoading)
-                        uiActions.disableButtons(disable = isLoading)
-                    }
-
-            disposables += state
-                    .mapNullable { it.error }
-                    .distinctUntilChanged()
-                    .observeOn(main)
-                    .subscribe {
-                        val error = it.value
-                        if (error == null) {
-                            uiActions.hideError()
-                        } else {
-                            uiActions.showError(error)
-                        }
-                    }
-
-        }
-
-        override fun render(state: State) {
-            this.state.accept(state)
-        }
-
-        fun stop() {
-            disposables.clear()
-        }
-
-
-        companion object {
-            fun calculateDiff(old: List<Item>, new: List<Item>): RecyclerViewBinding<Item> {
-                val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        val oldItem = old[oldItemPosition]
-                        val newItem = new[newItemPosition]
-                        return oldItem.isItemSame(newItem)
-                    }
-
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        val oldItem = old[oldItemPosition]
-                        val newItem = new[newItemPosition]
-                        return oldItem.isContentSame(newItem)
-                    }
-
-                    override fun getOldListSize(): Int = old.size
-
-                    override fun getNewListSize(): Int = new.size
-
-                })
-
-                return RecyclerViewBinding(new = new, diff = diff)
-            }
-        }
-    }
 }
 
 operator fun CompositeDisposable.plusAssign(disposable: Disposable) {

@@ -18,7 +18,7 @@ import javax.inject.Named
 interface DealCardsUiComponent {
     fun injectMembers(dealCardsActivity: DealCardsActivity)
 
-    val renderer: DealCardsUi.Renderer
+    val renderer: DealCardsUiRenderer
 
     val cards: CardsRecycler
 

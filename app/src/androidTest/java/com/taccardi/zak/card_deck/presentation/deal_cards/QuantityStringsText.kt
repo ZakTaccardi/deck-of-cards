@@ -2,8 +2,7 @@ package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
-import android.support.test.filters.SmallTest
-import com.taccardi.zak.card_deck.presentation.deal_cards.remainingCardsHint
+import android.support.test.filters.MediumTest
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -14,7 +13,7 @@ import org.junit.runners.Parameterized
  * Test to evaluate quantity strings are rendered correctly.
  */
 @RunWith(Parameterized::class)
-@SmallTest
+@MediumTest
 class QuantityStringsText(val cardsRemaining: Int, val expected: String) {
 
     lateinit var context: Context
@@ -27,7 +26,7 @@ class QuantityStringsText(val cardsRemaining: Int, val expected: String) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "remaining cards: {0} | expected: {1}")
-        fun data() : Collection<Array<Any>> {
+        fun data(): Collection<Array<Any>> {
             return listOf(
                     arrayOf(0, "Deck is empty. Build a new one"),
                     arrayOf(1, "Tap deck to deal.\n1 card remains"),

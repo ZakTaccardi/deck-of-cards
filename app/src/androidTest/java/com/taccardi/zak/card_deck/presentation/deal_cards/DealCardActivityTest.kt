@@ -370,7 +370,7 @@ class Delegate(
         DEAL_CARD -> deck.perform(click())
         SHUFFLE_DECK -> shuffleDeckButton.perform(click())
         BUILD_NEW_DECK -> buildNewDeckButton.perform(click())
-    }
+    }!!
 
 }
 

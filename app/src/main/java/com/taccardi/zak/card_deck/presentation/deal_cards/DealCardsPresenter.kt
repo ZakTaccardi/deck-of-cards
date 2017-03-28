@@ -1,7 +1,6 @@
 package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import com.taccardi.zak.card_deck.app.MyApplication
-import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.Error

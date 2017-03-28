@@ -28,8 +28,8 @@ class DealCardsUiModule(val activity: DealCardsActivity) {
     fun newDeckRequests(): Relay<Unit> = PublishRelay.create<Unit>()
 
     @Provides @ActivityScope
-    fun renderer(dealCardsUi: DealCardsUi, schedulers: com.taccardi.zak.library.pojo.Schedulers): DealCardsUi.Renderer {
-        return DealCardsUi.Renderer(activity, main = schedulers.main, comp = schedulers.comp)
+    fun renderer(dealCardsUi: DealCardsUi, schedulers: com.taccardi.zak.library.pojo.Schedulers): DealCardsUiRenderer {
+        return DealCardsUiRenderer(activity, main = schedulers.main, comp = schedulers.comp)
     }
 
     @Provides @ActivityScope

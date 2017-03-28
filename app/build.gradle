@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "com.taccardi.zak.card_deck.test.TestRunner"
     }
     buildTypes {
-        debug{
+        debug {
             minifyEnabled false
 //            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

@@ -25,7 +25,7 @@ class DealCardsActivity : BaseActivity(), DealCardsUi, DealCardsUi.Actions, Deal
 
     lateinit var component: DealCardsUiComponent
     @Inject lateinit var cards: CardsRecycler
-    @Inject lateinit var renderer: DealCardsUi.Renderer
+    @Inject lateinit var renderer: DealCardsUiRenderer
     @Inject lateinit var presenter: DealCardsPresenter
     @field:[Inject Named(DealCardsUiComponent.DEAL_CARD)] lateinit var dealCardClicks: Relay<Unit>
     @field:[Inject Named(DealCardsUiComponent.SHUFFLE_DECK)] lateinit var shuffleDeckClicks: Relay<Unit>
