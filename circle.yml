@@ -21,9 +21,11 @@ test:
     - ./gradlew lint -PdisablePreDex
     # start assemble all outputs
     - ./gradlew assemble -PdisablePreDex
-    - ./gradlew assembleAndroidTest -PdisablePreDex
-    # run unit testsg
     - ./gradlew test -PdisablePreDex
+    - ./gradlew assembleAndroidTest -PdisablePreDex
+    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=small
+    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=medium
+    # run unit testsg
     # wait for it to have booted
 #    - circle-android wait-for-boot
     # unlock the emulator screen. This is to ensure the emulator screen wasn't on sleep mode.
