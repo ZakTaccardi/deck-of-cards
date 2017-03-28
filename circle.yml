@@ -14,10 +14,10 @@ dependencies:
 test:
   override:
     # start the emulator
-#    - emulator -avd circleci-android24 -no-window:
-#         background: true
-#         parallel: true
-    # start lint
+- emulator -avd circleci-android22 -no-audio -no-window:
+  background: true
+  parallel: true
+
     - ./gradlew lint -PdisablePreDex
     # start assemble all outputs
     - ./gradlew assemble -PdisablePreDex
