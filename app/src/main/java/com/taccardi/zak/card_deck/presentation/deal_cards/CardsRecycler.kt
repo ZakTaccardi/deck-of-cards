@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.content.Context
 import android.support.annotation.LayoutRes
@@ -13,8 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.jakewharton.rxrelay2.Relay
-import com.taccardi.zak.card_deck.CardsRecycler.Item.UiCard
-import com.taccardi.zak.card_deck.CardsRecycler.Item.UiDeck
+import com.taccardi.zak.card_deck.R
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiCard
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiDeck
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.pojo.Suit
@@ -141,7 +142,7 @@ class CardsRecycler(
 
         companion object {
             @Suppress("UNCHECKED_CAST")
-            fun create(itemView: View, viewType: UiViewHolder.ViewType, deckClicks: Relay<Unit>): UiViewHolder<Item> = when (viewType) {
+            fun create(itemView: View, viewType: ViewType, deckClicks: Relay<Unit>): UiViewHolder<Item> = when (viewType) {
                 ViewType.CARD -> CardHolder(itemView) as UiViewHolder<Item>
                 ViewType.DECK -> DeckHolder(itemView, deckClicks) as UiViewHolder<Item>
             }

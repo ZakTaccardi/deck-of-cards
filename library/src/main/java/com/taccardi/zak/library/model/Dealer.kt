@@ -2,6 +2,7 @@ package com.taccardi.zak.library.model
 
 import android.support.annotation.VisibleForTesting
 import com.jakewharton.rxrelay2.BehaviorRelay
+import com.taccardi.zak.library.dagger.DataScope
 import com.taccardi.zak.library.model.ForceError.*
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
@@ -9,6 +10,7 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Interacts with the deck of cards

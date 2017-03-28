@@ -1,7 +1,8 @@
 package com.taccardi.zak.card_deck
 
-import com.taccardi.zak.card_deck.CardsRecycler.Item.UiCard
-import com.taccardi.zak.card_deck.CardsRecycler.Item.UiDeck
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiCard
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiDeck
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Rank
 import com.taccardi.zak.library.pojo.Suit

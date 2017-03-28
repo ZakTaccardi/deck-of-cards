@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.content.Context
 import android.os.Bundle
@@ -12,6 +12,9 @@ import android.widget.TextView
 import com.evernote.android.state.State
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.R
+import com.taccardi.zak.card_deck.presentation.base.BaseActivity
+import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.library.model.Dealer
 import com.taccardi.zak.library.model.ForceError
 import com.taccardi.zak.library.model.InMemoryDealer

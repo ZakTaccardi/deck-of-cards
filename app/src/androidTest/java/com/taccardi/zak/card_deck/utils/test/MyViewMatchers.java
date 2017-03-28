@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck;
+package com.taccardi.zak.card_deck.utils.test;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

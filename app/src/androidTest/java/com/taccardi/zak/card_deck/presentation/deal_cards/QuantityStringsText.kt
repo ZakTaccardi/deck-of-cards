@@ -1,8 +1,9 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.support.test.filters.SmallTest
+import com.taccardi.zak.card_deck.presentation.deal_cards.remainingCardsHint
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -29,8 +30,8 @@ class QuantityStringsText(val cardsRemaining: Int, val expected: String) {
         fun data() : Collection<Array<Any>> {
             return listOf(
                     arrayOf(0, "Deck is empty. Build a new one"),
-                    arrayOf(1, "Tap deck to deal. 1 card remains"),
-                    arrayOf(2, "Tap deck to deal. 2 cards remain")
+                    arrayOf(1, "Tap deck to deal.\n1 card remains"),
+                    arrayOf(2, "Tap deck to deal.\n2 cards remain")
             )
         }
     }

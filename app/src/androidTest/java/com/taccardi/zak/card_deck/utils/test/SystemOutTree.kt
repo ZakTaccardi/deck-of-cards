@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.utils.test
 
 import timber.log.Timber
 

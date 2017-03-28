@@ -2,6 +2,9 @@ package com.taccardi.zak.card_deck
 
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
+import com.taccardi.zak.card_deck.presentation.base.StateRenderer
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsPresenter
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi
 import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.model.BuildingDeckOperation
 import com.taccardi.zak.library.model.DealOperation

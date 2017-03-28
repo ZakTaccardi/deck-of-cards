@@ -12,8 +12,8 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument("package", "com.taccardi.zak.card_deck")
+        testInstrumentationRunner "com.taccardi.zak.card_deck.test.TestRunner"
     }
     buildTypes {
         debug{
@@ -51,6 +51,9 @@ dependencies {
 
     androidTestCompile libraries.junit
     androidTestCompile libraries.assertJ
+
+    compile libraries.dagger
+    kapt libraries.daggerCompiler
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

@@ -47,6 +47,9 @@ dependencies {
     testCompile libraries.junit
     testCompile libraries.assertJ
 
+    compile libraries.dagger
+    kapt libraries.daggerCompiler
+
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

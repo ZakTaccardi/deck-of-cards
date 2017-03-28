@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.base
 
 /**
  * Responsible for rendering a view's state.

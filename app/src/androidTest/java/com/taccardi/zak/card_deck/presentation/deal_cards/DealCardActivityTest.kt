@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.support.annotation.IdRes
 import android.support.test.espresso.Espresso.onView
@@ -11,9 +11,12 @@ import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.filters.LargeTest
 import android.support.test.rule.ActivityTestRule
 import android.support.v7.widget.RecyclerView
-import com.taccardi.zak.card_deck.DealCardsUi.State.Change.*
-import com.taccardi.zak.card_deck.Delegate.UserIntent.*
-import com.taccardi.zak.card_deck.MyViewMatchers.withPartialText
+import com.taccardi.zak.card_deck.R
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
+import com.taccardi.zak.card_deck.presentation.deal_cards.Delegate.UserIntent.*
+import com.taccardi.zak.card_deck.utils.test.MyViewMatchers.withPartialText
+import com.taccardi.zak.card_deck.utils.test.RecyclerViewMatcher
+import com.taccardi.zak.card_deck.utils.test.SystemOutTree
 import com.taccardi.zak.library.pojo.Card
 import org.hamcrest.CoreMatchers.not
 import org.junit.After
@@ -152,9 +155,9 @@ class DealCardActivityTest {
 
     @Test
     fun error_shows() {
-        val error = Error("an error happened")
+        val error = Error(null, "An unknown error occurred")
         val withError = DealCardsUi.State.EVERY_CARD_DEALT.reduce(error)
-        val errorDismissed = DealCardsUi.State.EVERY_CARD_DEALT.reduce(error)
+        val errorDismissed = DealCardsUi.State.EVERY_CARD_DEALT.reduce(DismissedError)
         val test = Delegate(
                 rule = activityRule,
                 state = withError

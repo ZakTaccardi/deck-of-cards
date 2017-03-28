@@ -1,7 +1,8 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.base
 
 import android.os.Bundle
 import com.evernote.android.state.StateSaver
+import com.taccardi.zak.card_deck.presentation.base.BaseActivity
 
 /**
  * Provides instance saving state.

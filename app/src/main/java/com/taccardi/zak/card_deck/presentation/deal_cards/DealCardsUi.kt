@@ -1,4 +1,4 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.deal_cards
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -6,9 +6,10 @@ import android.support.annotation.VisibleForTesting
 import android.support.v7.util.DiffUtil
 import com.jakewharton.rxrelay2.PublishRelay
 import com.jakewharton.rxrelay2.Relay
-import com.taccardi.zak.card_deck.CardsRecycler.Item
-import com.taccardi.zak.card_deck.DealCardsUi.State.Change.*
-import com.taccardi.zak.card_deck.DealCardsUi.State.ErrorSource.*
+import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.*
+import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
@@ -54,7 +55,7 @@ interface DealCardsUi {
         fun showRemainingCards(remainingCards: Int)
 
 
-        fun showDeck(diff: RecyclerViewBinding<CardsRecycler.Item>)
+        fun showDeck(diff: RecyclerViewBinding<Item>)
 
         /**
          * Show or hide the loading UI
@@ -166,10 +167,10 @@ interface DealCardsUi {
 
 
     class Renderer(
-            val uiActions: DealCardsUi.Actions,
+            val uiActions: Actions,
             val main: Scheduler,
             val comp: Scheduler
-    ) : StateRenderer<DealCardsUi.State> {
+    ) : StateRenderer<State> {
 
         val disposables = CompositeDisposable()
 
@@ -192,15 +193,15 @@ interface DealCardsUi {
                     .distinctUntilChanged()
                     .map { it.map { Item.UiCard(it) } }
                     .map { cards ->
-                        val list = ArrayList<CardsRecycler.Item>(cards.size + 1)
+                        val list = ArrayList<Item>(cards.size + 1)
                         list.add(Item.UiDeck)
                         list.addAll(cards)
                         @Suppress("USELESS_CAST")
-                        list as List<CardsRecycler.Item>
+                        list as List<Item>
                     }
                     .scanMap(
-                            emptyList<CardsRecycler.Item>(),
-                            { old: List<CardsRecycler.Item>, new: List<CardsRecycler.Item> -> calculateDiff(old, new) }
+                            emptyList<Item>(),
+                            { old: List<Item>, new: List<Item> -> calculateDiff(old, new) }
                     )
                     .subscribeOn(Schedulers.trampoline())
                     .observeOn(main)
@@ -232,7 +233,7 @@ interface DealCardsUi {
 
         }
 
-        override fun render(state: DealCardsUi.State) {
+        override fun render(state: State) {
             this.state.accept(state)
         }
 
@@ -242,7 +243,7 @@ interface DealCardsUi {
 
 
         companion object {
-            fun calculateDiff(old: List<CardsRecycler.Item>, new: List<CardsRecycler.Item>): RecyclerViewBinding<Item> {
+            fun calculateDiff(old: List<Item>, new: List<Item>): RecyclerViewBinding<Item> {
                 val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
                     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                         val oldItem = old[oldItemPosition]
@@ -272,14 +273,14 @@ operator fun CompositeDisposable.plusAssign(disposable: Disposable) {
     this.add(disposable)
 }
 
-fun <T, R> io.reactivex.Observable<T>.scanMap(func2: (T?, T) -> R): io.reactivex.Observable<R> {
+fun <T, R> Observable<T>.scanMap(func2: (T?, T) -> R): Observable<R> {
     return this.startWith(null as T?) //emit a null value first, otherwise the .buffer() below won't emit at first (needs 2 emissions to emit)
             .buffer(2, 1) //buffer the previous and current emission
             .filter { it.size >= 2 } //when the buffer terminates (onCompleted/onError), the remaining buffer is emitted. When don't want those!
             .map { func2.invoke(it[0], it[1]) }
 }
 
-fun <T, R> io.reactivex.Observable<T>.scanMap(initialValue: T, func2: (T, T) -> R): io.reactivex.Observable<R> {
+fun <T, R> Observable<T>.scanMap(initialValue: T, func2: (T, T) -> R): Observable<R> {
     return this.startWith(initialValue)
             .buffer(2, 1)
             .filter { it.size >= 2 }
@@ -320,6 +321,6 @@ fun <T : Any?> T.toNullable(): Nullable<T> {
     }
 }
 
-fun <T : Any, R : Any?> io.reactivex.Observable<T>.mapNullable(func: (T) -> R?): io.reactivex.Observable<Nullable<R?>> {
+fun <T : Any, R : Any?> Observable<T>.mapNullable(func: (T) -> R?): Observable<Nullable<R?>> {
     return this.map { Nullable(func.invoke(it)) }
 }

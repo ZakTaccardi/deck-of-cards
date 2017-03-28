@@ -1,8 +1,9 @@
-package com.taccardi.zak.card_deck
+package com.taccardi.zak.card_deck.presentation.base
 
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
+import com.taccardi.zak.card_deck.presentation.base.StateSaverActivityDelegate
 
 /**
  * Base activity for all activities to inherit from.
