@@ -26,18 +26,20 @@ test:
     - ./gradlew lint -PdisablePreDex
     # start assemble all outputs
     - ./gradlew assemble -PdisablePreDex
+    # run unit tests
     - ./gradlew test -PdisablePreDex
+    # build device tests
     - ./gradlew assembleAndroidTest -PdisablePreDex
-    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=small
-    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=medium
-    # run unit testsg
+
     # wait for it to have booted
-#    - circle-android wait-for-boot
-    # unlock the emulator screen. This is to ensure the emulator screen wasn't on sleep mode.
-#    - sleep 30
-#    - adb shell input keyevent 82
+    - circle-android wait-for-boot
+     # unlock the emulator screen. This is to ensure the emulator screen wasn't on sleep mode.
+    - sleep 30
+    - adb shell input keyevent 82
 
     # run tests  against the emulator.
+    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=small
+    - ./gradlew connectedAndroidTest -PdisablePreDex -Pandroid.testInstrumentationRunnerArguments.size=medium
 #    - ./gradlew connectedAndroidTest -PdisablePreDex
 
      # copy lint outputs to artifacts
