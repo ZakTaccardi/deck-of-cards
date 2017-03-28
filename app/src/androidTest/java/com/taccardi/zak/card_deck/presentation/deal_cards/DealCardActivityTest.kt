@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView
 import com.taccardi.zak.card_deck.R
 import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
 import com.taccardi.zak.card_deck.presentation.deal_cards.Delegate.UserIntent.*
+import com.taccardi.zak.card_deck.test.wakeUpDevice
 import com.taccardi.zak.card_deck.utils.test.MyViewMatchers.withPartialText
 import com.taccardi.zak.card_deck.utils.test.RecyclerViewMatcher
 import com.taccardi.zak.card_deck.utils.test.SystemOutTree
@@ -39,6 +40,7 @@ class DealCardActivityTest {
     @Before
     fun setUp() {
         Timber.plant(SystemOutTree)
+        activityRule.activity.wakeUpDevice()
     }
 
     @After
