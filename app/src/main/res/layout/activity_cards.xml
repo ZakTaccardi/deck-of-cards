@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dealCardsUi"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.taccardi.zak.card_deck.DealCardsActivity">
+
+
+    <ProgressBar
+        android:id="@+id/dealCardsUi_progressBar_loading"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:foregroundGravity="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <TextView
+        android:id="@+id/dealCardsUi_cardsRemaining_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-thin"
+        android:padding="@dimen/dealCardsUi_padding"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Display1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dealCardsUi_progressBar_loading"
+        tools:layout_editor_absoluteX="0dp"
+        tools:text="@string/dealCardsUi_tapToDeal_text" />
+
+    <TextView
+        android:id="@+id/dealCardsUi_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/dealCardsUi_padding"
+        android:paddingEnd="@dimen/dealCardsUi_padding"
+        android:paddingStart="@dimen/dealCardsUi_padding"
+        android:visibility="gone"
+        tools:visibility="visible"
+        style="@style/TextAppearance.Design.Error"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dealCardsUi_cardsRemaining_textView"
+        tools:text="An error has occured" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cards_recycler"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:paddingStart="@dimen/dealCardsUi_padding"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dealCardsUi_error"
+        tools:ignore="RtlSymmetry"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <Button
+        android:id="@+id/button_shuffle"
+        style="@style/DealCardsUi.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_shuffle_primary_24dp"
+        android:text="@string/button_shuffle_text"
+        app:layout_constraintEnd_toStartOf="@+id/button_new_deck"
+        app:layout_constraintHorizontal_bias=".5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cards_recycler"
+        tools:layout_editor_absoluteX="98dp" />
+
+    <Button
+        android:id="@+id/button_new_deck"
+        style="@style/DealCardsUi.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_refresh_primary_24dp"
+        android:text="@string/button_new_deck_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_shuffle"
+        app:layout_constraintTop_toBottomOf="@+id/cards_recycler"
+        tools:layout_editor_absoluteX="186dp" />
+
+</android.support.constraint.ConstraintLayout>

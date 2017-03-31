@@ -1,0 +1,71 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
+    defaultConfig {
+        applicationId "com.taccardi.zak.card_deck"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunnerArgument("package", "com.taccardi.zak.card_deck")
+        testInstrumentationRunner "com.taccardi.zak.card_deck.test.TestRunner"
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+//            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(path: ':library')
+
+    compile libraries.supportAppCompat
+    compile libraries.supportRecyclerView
+    compile libraries.supportCardView
+    compile libraries.supportDesign
+    compile libraries.supportConstraintLayout
+    compile libraries.timber
+    compile libraries.paperParcel
+    compile libraries.paperParcelKotlin
+    compile libraries.androidState
+    kapt libraries.androidStateProcessor
+    kapt libraries.paperParcelCompiler
+
+
+    testCompile libraries.junit
+    testCompile libraries.assertJ
+
+    androidTestCompile libraries.junit
+    androidTestCompile libraries.assertJ
+
+    compile libraries.dagger
+    kapt libraries.daggerCompiler
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
+        // Necessary to avoid version conflicts
+        exclude group: 'com.android.support', module: 'appcompat'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: 'recyclerview-v7'
+    }
+}
+repositories {
+    mavenCentral()
+}
