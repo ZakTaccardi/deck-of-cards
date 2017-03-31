@@ -1,0 +1,5 @@
+CREATE TABLE card_order (
+    _id INTEGER NOT NULL PRIMARY KEY,
+    sort_order INTEGER NOT NULL,
+    FOREIGN KEY (_id) REFERENCES card(_id)
+);
