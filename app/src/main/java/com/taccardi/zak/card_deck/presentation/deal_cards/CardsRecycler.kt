@@ -12,13 +12,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.jakewharton.rxrelay2.Relay
 import com.taccardi.zak.card_deck.R
 import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiCard
 import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item.UiDeck
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import com.taccardi.zak.library.pojo.Suit
+import com.jakewharton.rxrelay2.Relay
 
 /**
  * Delegate for the recyclerview in [DealCardsUi] that displays the cards that were dealt.
@@ -114,12 +114,12 @@ class CardsRecycler(
 
             val suitRanks: Array<TextView> by lazy {
                 arrayOf(
-                        itemView.findViewById(R.id.dealCardsUi_bottomRight_suitRank) as TextView,
-                        itemView.findViewById(R.id.dealCardsUi_topLeft_suitRank) as TextView
+                        itemView.findViewById<TextView>(R.id.dealCardsUi_bottomRight_suitRank),
+                        itemView.findViewById<TextView>(R.id.dealCardsUi_topLeft_suitRank)
                 )
             }
 
-            val centerSuit: TextView by lazy { itemView.findViewById(R.id.dealCardsUi_center_suit) as TextView }
+            val centerSuit: TextView by lazy { itemView.findViewById<TextView>(R.id.dealCardsUi_center_suit) }
 
             override fun bind(item: UiCard) {
                 suitRanks.forEach { suitRank ->

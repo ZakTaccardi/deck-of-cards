@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -29,22 +30,24 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(path: ':library')
 
-    compile libraries.supportAppCompat
-    compile libraries.supportRecyclerView
-    compile libraries.supportCardView
-    compile libraries.supportDesign
-    compile libraries.supportConstraintLayout
-    compile libraries.timber
-    compile libraries.paperParcel
-    compile libraries.paperParcelKotlin
-    compile libraries.androidState
+    implementation libraries.supportAppCompat
+    implementation libraries.supportRecyclerView
+    implementation libraries.supportCardView
+    implementation libraries.supportDesign
+    implementation libraries.supportConstraintLayout
+    implementation libraries.timber
+    implementation libraries.androidState
+    implementation libraries.rxJava2
+    implementation libraries.rxRelay2
     kapt libraries.androidStateProcessor
-    kapt libraries.paperParcelCompiler
-
 
     testCompile libraries.junit
     testCompile libraries.assertJ

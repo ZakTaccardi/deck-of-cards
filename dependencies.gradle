@@ -3,11 +3,11 @@ ext.versions = [
         name                         : '1.0.0',
 
         minSdk                       : 21,
-        targetSdk                    : 25,
-        compileSdk                   : 25,
-        buildTools                   : '25.0.2',
+        targetSdk                    : 26,
+        compileSdk                   : 26,
+        buildTools                   : '26.0.2',
 
-        androidGradlePlugin          : '2.3.0',
+        androidGradlePlugin          : '3.0.0',
         aptGradlePlugin              : '1.8',
         javaAptGradlePlugin          : '0.6',
         retrolambdaGradlePlugin      : '3.2.5',
@@ -54,15 +54,12 @@ ext.versions = [
         adapterDelegates3            : '3.0.1',
         autoValueParcel              : '0.2.5',
         jMustache                    : '1.13',
-        paperParcel                  : '2.0.0',
-
-        kotlinChannel                : 'org.jetbrains.kotlin',
-//        kotlinChannel                : 'kotlin-dev',
+        paperParcel                  : '2.0.4',
 
         chuck                        : '1.0.3',
-        dagger                       : '2.7',
+        dagger                       : '2.12',
         timber                       : '4.1.2',
-        kotlin                       : '1.1.1',
+        kotlin                       : '1.1.51',
         anko                         : '0.9.1',
         handlebars                   : '4.0.6',
         rxJava                       : '1.2.6',
@@ -116,7 +113,7 @@ ext.versions = [
         mockito                      : '2.5.6',
         supportTestRunner            : '0.5',
         spek                         : "1.0.89",
-        mockitoKotlin                : "1.0.1",
+        mockitoKotlin                : "1.5.0",
         assertJGen                   : "1.1.2"
 
 ]
@@ -134,7 +131,7 @@ ext.gradlePlugins = [
         dexcount           : "com.getkeepsafe.dexcount:dexcount-gradle-plugin:$versions.dexcountPlugin",
         versions           : "com.github.ben-manes:gradle-versions-plugin:$versions.versionsGradlePlugin",
         googleServices     : "com.google.gms:google-services:$versions.googleServicesGradlePlugin",
-        kotlin             : "$versions.kotlinChannel:kotlin-gradle-plugin:$versions.kotlin",
+        kotlin             : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin",
         realm              : "io.realm:realm-gradle-plugin:$versions.realmGradlePlugin",
         androidCommand     : "com.novoda:gradle-android-command-plugin:$versions.androidCommandGradlePlugin",
         junitPlatformRunner: "org.junit.platform:junit-platform-gradle-plugin:$versions.junitPlatformRunner",
@@ -176,7 +173,7 @@ ext.libraries = [
         autoValueMoshi             : "com.ryanharter.auto.value:auto-value-moshi:$versions.autoValueMoshi",
         autoValueRedacted          : "com.squareup.auto.value:auto-value-redacted:$versions.autoValueRedacted",
 
-        kotlin                     : "$versions.kotlinChannel:kotlin-stdlib:$versions.kotlin",
+        kotlin                     : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin",
         autoValueWith              : "com.gabrielittner.auto.value:auto-value-with:$versions.autoValueWith",
         jMustache                  : "com.samskivert:jmustache:$versions.jMustache",
         rxPreferences              : "com.f2prateek.rx.preferences:rx-preferences:$versions.rxPreferences",

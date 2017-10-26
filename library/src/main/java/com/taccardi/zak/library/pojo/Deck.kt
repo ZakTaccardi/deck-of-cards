@@ -1,25 +1,29 @@
 package com.taccardi.zak.library.pojo
 
-import android.os.Parcel
 import android.os.Parcelable
-import paperparcel.PaperParcel
-import java.util.*
+import kotlinx.android.parcel.Parcelize
+import java.util.Collections
+import java.util.Stack
+import kotlin.collections.ArrayList
+
 
 /**
  * A deck of [Card]s
  */
-@PaperParcel
+@Parcelize
 data class Deck constructor(
         val remaining: List<Card>,
         val dealt: List<Card>
-) : Parcelable {
+) : Parcelable{
 
-    @Transient val lastCardDealt: Card? = dealt.firstOrNull()
+    @Transient
+    val lastCardDealt: Card? = dealt.firstOrNull()
 
     /**
      * @return the top card of the deck, or null if it does not exist. This does not actually "deal" the top card.
      */
-    @Transient val topCard: Card? = remaining.firstOrNull()
+    @Transient
+    val topCard: Card? = remaining.firstOrNull()
 
 
     /**
@@ -44,7 +48,6 @@ data class Deck constructor(
     }
 
     companion object {
-        @JvmField val CREATOR = PaperParcelDeck.CREATOR
 
         val FRESH_DECK by lazy {
             val cards = Stack<Card>()
@@ -68,11 +71,6 @@ data class Deck constructor(
             Deck(emptyList(), cards)
         }
     }
-
-    override fun describeContents() = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) = PaperParcelDeck.writeToParcel(this, dest, flags)
-
 
     fun of(cards: List<Card>): Deck {
         return Deck(cards, emptyList())

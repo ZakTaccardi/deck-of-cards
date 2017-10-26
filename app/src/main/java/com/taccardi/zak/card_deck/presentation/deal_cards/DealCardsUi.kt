@@ -6,14 +6,29 @@ import android.support.annotation.VisibleForTesting
 import android.support.v7.util.DiffUtil
 import com.taccardi.zak.card_deck.presentation.base.StateRenderer
 import com.taccardi.zak.card_deck.presentation.deal_cards.CardsRecycler.Item
-import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.*
-import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.*
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.BuildingDeckComplete
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.DealingComplete
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.DeckModified
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.DismissedError
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.Error
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.IsBuildingDeck
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.IsDealing
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.IsShuffling
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.NoOp
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.RequestNewDeck
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.RequestShuffle
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.RequestTopCard
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.Change.ShuffleComplete
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.BUILDING_NEW_DECK
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.DEALING
+import com.taccardi.zak.card_deck.presentation.deal_cards.DealCardsUi.State.ErrorSource.SHUFFLING
 import com.taccardi.zak.library.pojo.Card
 import com.taccardi.zak.library.pojo.Deck
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import paperparcel.PaperParcel
+import kotlinx.android.parcel.Parcelize
+import java.lang.reflect.Parameter
 
 /**
  * The user interface for dealing cards.
@@ -81,7 +96,7 @@ interface DealCardsUi : StateRenderer<DealCardsUi.State> {
     /**
      * The view state for [DealCardsUi]
      */
-    @PaperParcel
+    @Parcelize
     data class State(
             val deck: Deck,
             val isShuffling: Boolean,
@@ -121,11 +136,6 @@ interface DealCardsUi : StateRenderer<DealCardsUi.State> {
             DismissedError -> this.copy(error = null)
         }
 
-        override fun describeContents() = 0
-
-        override fun writeToParcel(dest: Parcel, flags: Int) = PaperParcelDealCardsUi_State.writeToParcel(this, dest, flags)
-
-
         sealed class Change(val logText: String) {
             object RequestShuffle : Change("user -> requested shuffle")
             object RequestTopCard : Change("user -> request top card of deck to be dealt")
@@ -149,7 +159,6 @@ interface DealCardsUi : StateRenderer<DealCardsUi.State> {
         }
 
         companion object {
-            @JvmField val CREATOR = PaperParcelDealCardsUi_State.CREATOR
             //default
             val DEFAULT by lazy { NO_CARDS_DEALT }
 

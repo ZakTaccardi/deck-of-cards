@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -18,7 +19,7 @@ android {
     }
     buildTypes {
 
-        debug{
+        debug {
             minifyEnabled false
 //            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -31,26 +32,27 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile libraries.supportAppCompat
+    implementation libraries.supportAppCompat
 
-    compile libraries.rxJava2
-    compile libraries.rxRelay2
-    compile libraries.kotlin
-    compile libraries.rxAndroid2
-    compile libraries.paperParcel
-    compile libraries.paperParcelKotlin
-    kapt libraries.paperParcelCompiler
+    api libraries.rxJava2
+    implementation libraries.rxRelay2
+    api libraries.kotlin
+    api libraries.rxAndroid2
 
-    testCompile libraries.junit
-    testCompile libraries.assertJ
+    testImplementation libraries.junit
+    testImplementation libraries.assertJ
 
-    compile libraries.dagger
+    api libraries.dagger
     kapt libraries.daggerCompiler
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }
